@@ -18,43 +18,43 @@ async function init() {
         if (typeof d3 === 'undefined') {
             throw new Error('D3.js library not loaded. Please check your internet connection.');
         }
-        
+
         console.log('Starting to load family tree...');
         console.log('D3.js version:', d3.version);
-        
+
         // Load the family tree data
         const response = await fetch('family1.json');
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         console.log('JSON file loaded, parsing...');
         treeData = await response.json();
         console.log('Tree data loaded:', treeData);
-        
+
         // Build people map for quick lookup
         treeData.people.forEach(person => {
             peopleMap[person.id] = person;
         });
-        
+
         relationships = treeData.relationships;
         rootPersonId = treeData.meta.rootPersonId || treeData.people[0].id;
-        
+
         console.log(`Loaded ${treeData.people.length} people and ${relationships.length} relationships`);
         console.log('Root person ID:', rootPersonId);
-        
+
         // Build and render the tree
         console.log('Rendering tree...');
         renderTree();
         console.log('Tree rendered successfully');
-        
+
         // Hide loading message after rendering
         const loadingEl = document.getElementById('loading');
         if (loadingEl) {
             loadingEl.style.display = 'none';
         }
-        
+
         // Update edit forms if in edit mode
         if (typeof updateEditForms === 'function') {
             updateEditForms();
@@ -82,20 +82,20 @@ function buildTreeStructure() {
         console.error('Root person not found:', rootPersonId);
         return null;
     }
-    
+
     // Build adjacency lists
     const children = {}; // parentId -> [childIds]
     const parents = {};   // childId -> [parentIds]
     const spouses = {};   // personId -> [spouseIds]
-    
+
     relationships.forEach(rel => {
         if (rel.type === 'parentChild') {
             const parentId = rel.parentId;
             const childId = rel.childId;
-            
+
             if (!children[parentId]) children[parentId] = [];
             children[parentId].push(childId);
-            
+
             if (!parents[childId]) parents[childId] = [];
             parents[childId].push(parentId);
         } else if (rel.type === 'spouse') {
@@ -106,15 +106,15 @@ function buildTreeStructure() {
             spouses[p2].push(p1);
         }
     });
-    
+
     // Build node structure - separate function for upward (ancestors) and downward (descendants)
     function buildNodeDown(personId, visited = new Set(), level = 0) {
         if (visited.has(personId)) return null;
         visited.add(personId);
-        
+
         const person = peopleMap[personId];
         if (!person) return null;
-        
+
         const node = {
             id: personId,
             name: person.name,
@@ -126,7 +126,7 @@ function buildTreeStructure() {
             children: [],
             spouses: []
         };
-        
+
         // Add children (going downward)
         if (children[personId]) {
             children[personId].forEach(childId => {
@@ -134,7 +134,7 @@ function buildTreeStructure() {
                 if (childNode) node.children.push(childNode);
             });
         }
-        
+
         // Add spouses at same level
         if (spouses[personId]) {
             spouses[personId].forEach(spouseId => {
@@ -154,17 +154,17 @@ function buildTreeStructure() {
                 }
             });
         }
-        
+
         return node;
     }
-    
+
     function buildNodeUp(personId, visited = new Set(), level = 0, excludeChildId = null) {
         if (visited.has(personId)) return null;
         visited.add(personId);
-        
+
         const person = peopleMap[personId];
         if (!person) return null;
-        
+
         const node = {
             id: personId,
             name: person.name,
@@ -177,7 +177,7 @@ function buildTreeStructure() {
             spouses: [],
             siblings: []
         };
-        
+
         // Add parents (going upward)
         if (parents[personId]) {
             parents[personId].forEach(parentId => {
@@ -188,7 +188,7 @@ function buildTreeStructure() {
                 }
             });
         }
-        
+
         // Add siblings - all other children of the same parents
         if (parents[personId]) {
             const allSiblings = new Set();
@@ -201,7 +201,7 @@ function buildTreeStructure() {
                     });
                 }
             });
-            
+
             allSiblings.forEach(siblingId => {
                 const sibling = peopleMap[siblingId];
                 if (sibling) {
@@ -217,7 +217,7 @@ function buildTreeStructure() {
                 }
             });
         }
-        
+
         // Add spouses at same level
         if (spouses[personId]) {
             spouses[personId].forEach(spouseId => {
@@ -237,10 +237,10 @@ function buildTreeStructure() {
                 }
             });
         }
-        
+
         return node;
     }
-    
+
     // Build root node with both upward and downward expansion
     const rootPerson = peopleMap[rootPersonId];
     const root = {
@@ -256,7 +256,7 @@ function buildTreeStructure() {
         parents: [],
         siblings: []
     };
-    
+
     // Build downward (children)
     const visitedDown = new Set([rootPersonId]);
     if (children[rootPersonId]) {
@@ -265,7 +265,7 @@ function buildTreeStructure() {
             if (childNode) root.children.push(childNode);
         });
     }
-    
+
     // Build upward (parents)
     const visitedUp = new Set([rootPersonId]);
     if (parents[rootPersonId]) {
@@ -274,7 +274,7 @@ function buildTreeStructure() {
             if (parentNode) root.parents.push(parentNode);
         });
     }
-    
+
     // Add siblings at root level
     if (parents[rootPersonId]) {
         const allSiblings = new Set();
@@ -287,7 +287,7 @@ function buildTreeStructure() {
                 });
             }
         });
-        
+
         allSiblings.forEach(siblingId => {
             const sibling = peopleMap[siblingId];
             if (sibling) {
@@ -303,7 +303,7 @@ function buildTreeStructure() {
             }
         });
     }
-    
+
     // Add spouses at root level
     if (spouses[rootPersonId]) {
         spouses[rootPersonId].forEach(spouseId => {
@@ -321,7 +321,7 @@ function buildTreeStructure() {
             }
         });
     }
-    
+
     return root;
 }
 
@@ -330,7 +330,7 @@ function calculatePositions(root) {
     const positions = {};
     const nodesByLevel = {};
     const visited = new Set();
-    
+
     // Build children map for quick lookup
     const childrenMap = {};
     relationships.forEach(rel => {
@@ -339,17 +339,17 @@ function calculatePositions(root) {
             childrenMap[rel.parentId].push(rel.childId);
         }
     });
-    
+
     // First pass: collect nodes by level
     function collectNodes(node, level = 0) {
         if (!node || visited.has(node.id)) return;
         visited.add(node.id);
-        
+
         if (!nodesByLevel[level]) nodesByLevel[level] = [];
         if (!nodesByLevel[level].find(n => n.id === node.id)) {
             nodesByLevel[level].push(node);
         }
-        
+
         // Process spouses at same level
         if (node.spouses && node.spouses.length > 0) {
             node.spouses.forEach(spouse => {
@@ -369,7 +369,7 @@ function calculatePositions(root) {
                 }
             });
         }
-        
+
         // Process siblings at same level
         if (node.siblings && node.siblings.length > 0) {
             node.siblings.forEach(sibling => {
@@ -385,13 +385,13 @@ function calculatePositions(root) {
                             deathYear: sibling.deathYear,
                             level: level
                         });
-                        
+
                         // Also add spouses of siblings at the same level
                         const siblingSpouses = relationships
-                            .filter(rel => rel.type === 'spouse' && 
+                            .filter(rel => rel.type === 'spouse' &&
                                 (rel.people[0] === sibling.id || rel.people[1] === sibling.id))
                             .map(rel => rel.people[0] === sibling.id ? rel.people[1] : rel.people[0]);
-                        
+
                         siblingSpouses.forEach(spouseId => {
                             if (!visited.has(spouseId) && peopleMap[spouseId]) {
                                 const spouse = peopleMap[spouseId];
@@ -408,7 +408,7 @@ function calculatePositions(root) {
                                 }
                             }
                         });
-                        
+
                         // Also process children of siblings (nephews/nieces)
                         if (childrenMap[sibling.id]) {
                             childrenMap[sibling.id].forEach(childId => {
@@ -432,43 +432,43 @@ function calculatePositions(root) {
                 }
             });
         }
-        
+
         // Process children (downward)
         if (node.children && node.children.length > 0) {
             node.children.forEach(child => collectNodes(child, level + 1));
         }
-        
+
         // Process parents (upward)
         if (node.parents && node.parents.length > 0) {
             node.parents.forEach(parent => collectNodes(parent, level - 1));
         }
     }
-    
+
     collectNodes(root);
-    
+
     // Second pass: assign positions
     const centerX = width / 2;
     const centerY = height / 2;
-    
+
     // Sort levels
     const sortedLevels = Object.keys(nodesByLevel)
         .map(Number)
         .sort((a, b) => a - b);
-    
+
     sortedLevels.forEach(levelNum => {
         const nodes = nodesByLevel[levelNum];
         const y = centerY + levelNum * verticalSpacing;
-        
+
         // Calculate x positions, centering around centerX
         const totalWidth = Math.max(0, (nodes.length - 1) * horizontalSpacing);
         const startX = centerX - totalWidth / 2;
-        
+
         nodes.forEach((node, index) => {
             const x = startX + index * horizontalSpacing;
             positions[node.id] = { x, y, node };
         });
     });
-    
+
     return positions;
 }
 
@@ -483,11 +483,11 @@ function renderTree() {
         document.getElementById('loading').style.color = 'red';
         return;
     }
-    
+
     console.log('Tree structure built, calculating positions...');
     const positions = calculatePositions(root);
     console.log('Positions calculated:', Object.keys(positions).length, 'nodes');
-    
+
     if (Object.keys(positions).length === 0) {
         console.error('No positions calculated - tree might be empty');
         document.getElementById('loading').textContent = 'Error: No nodes to display. Check if family tree data is correct.';
@@ -495,7 +495,7 @@ function renderTree() {
         document.getElementById('loading').style.color = 'red';
         return;
     }
-    
+
     // Clear previous rendering
     const svgElement = document.getElementById('tree-svg');
     if (!svgElement) {
@@ -503,100 +503,283 @@ function renderTree() {
         return;
     }
     d3.select('#tree-svg').selectAll('*').remove();
-    
+
     const svg = d3.select('#tree-svg')
-        .attr('width', width)
-        .attr('height', height);
-    
+        .attr('width', '100%')
+        .attr('height', '100%');
+
+    // Define Gradients - NATURE THEME
+    const defs = svg.append("defs");
+
+    // Male Gradient - Fresh Green Leaf
+    const maleGradient = defs.append("linearGradient")
+        .attr("id", "maleGradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "100%");
+    maleGradient.append("stop").attr("offset", "0%").attr("stop-color", "#66bb6a");
+    maleGradient.append("stop").attr("offset", "100%").attr("stop-color", "#43a047");
+
+    // Female Gradient - Spring Green / slightly lighter
+    const femaleGradient = defs.append("linearGradient")
+        .attr("id", "femaleGradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "100%");
+    femaleGradient.append("stop").attr("offset", "0%").attr("stop-color", "#9ccc65");
+    femaleGradient.append("stop").attr("offset", "100%").attr("stop-color", "#7cb342");
+
+    // Other Gradient
+    const otherGradient = defs.append("linearGradient")
+        .attr("id", "otherGradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "100%");
+    otherGradient.append("stop").attr("offset", "0%").attr("stop-color", "#d4e157");
+    otherGradient.append("stop").attr("offset", "100%").attr("stop-color", "#c0ca33");
+
+
     // Create container group
     const g = svg.append('g');
-    
+
     // Draw links (relationships)
-    relationships.forEach(rel => {
+    relationships.forEach((rel, index) => {
         if (rel.type === 'parentChild') {
             const parent = positions[rel.parentId];
             const child = positions[rel.childId];
-            
+
             if (parent && child) {
-                g.append('line')
+                // Organic curve generator
+                const linkGen = d3.linkVertical()
+                    .x(d => d.x)
+                    .y(d => d.y);
+
+                const linkData = {
+                    source: { x: parent.x, y: parent.y + (nodeRadius * 0.5) }, // Start slightly below center
+                    target: { x: child.x, y: child.y - (nodeRadius * 0.5) }   // End slightly above center
+                };
+
+                const path = g.append('path')
                     .attr('class', 'link parent-child-link')
-                    .attr('x1', parent.x)
-                    .attr('y1', parent.y)
-                    .attr('x2', child.x)
-                    .attr('y2', child.y);
+                    .attr('data-parent', rel.parentId) // Add IDs for highlighting
+                    .attr('data-child', rel.childId)
+                    .attr('d', linkGen(linkData))
+                    .attr('stroke', '#795548')
+                    .attr('stroke-width', 2)
+                    .attr('fill', 'none')
+                    .attr('stroke-dasharray', function () { return this.getTotalLength(); })
+                    .attr('stroke-dashoffset', function () { return this.getTotalLength(); });
+
+                // Animate path
+                path.transition()
+                    .duration(1500)
+                    .delay(index * 20)
+                    .ease(d3.easeCubicOut)
+                    .attr('stroke-dashoffset', 0);
             }
         } else if (rel.type === 'spouse') {
             const [p1, p2] = rel.people;
             const person1 = positions[p1];
             const person2 = positions[p2];
-            
+
             if (person1 && person2) {
                 // Draw curved line for spouses
                 const midX = (person1.x + person2.x) / 2;
-                const midY = Math.min(person1.y, person2.y) - 30;
-                
-                const path = d3.path();
-                path.moveTo(person1.x, person1.y);
-                path.quadraticCurveTo(midX, midY, person2.x, person2.y);
-                
-                g.append('path')
+                const midY = Math.min(person1.y, person2.y) - 40; // Higher arc for more "bridge" look
+
+                const pathData = d3.path();
+                pathData.moveTo(person1.x, person1.y);
+                pathData.quadraticCurveTo(midX, midY, person2.x, person2.y);
+
+                const path = g.append('path')
                     .attr('class', 'link spouse-link')
-                    .attr('d', path.toString())
-                    .attr('fill', 'none');
+                    .attr('data-p1', p1) // Add IDs for highlighting
+                    .attr('data-p2', p2)
+                    .attr('d', pathData.toString())
+                    .attr('stroke', '#a1887f')
+                    .attr('fill', 'none')
+                    .attr('stroke-dasharray', function () { return this.getTotalLength(); })
+                    .attr('stroke-dashoffset', function () { return this.getTotalLength(); });
+
+                path.transition()
+                    .duration(1500)
+                    .delay(index * 20)
+                    .ease(d3.easeCubicOut)
+                    .attr('stroke-dashoffset', 0);
             }
         }
     });
-    
+
+    // Create Tooltip if it doesn't exist
+    let tooltip = d3.select("body").select(".cloud-tooltip");
+    if (tooltip.empty()) {
+        tooltip = d3.select("body").append("div")
+            .attr("class", "cloud-tooltip");
+    }
+
+    // Handle Mouse Events for Interaction
+    function handleMouseOver(event, d) {
+        // 1. Tooltip Logic
+        const person = peopleMap[d.id];
+        if (!person && d.node) person = peopleMap[d.node.id]; // Fallback depending on data binding
+        // Actually d is just the data bound, which is... we didn't bind data yet explicitly in the loop
+        // In the loop below: Object.values(positions).forEach...
+        // We aren't using d3.data().enter(). So 'd' might be the MouseEvent or undefined if we don't bind.
+        // We will bind data to the group to make this easier.
+    }
+
     // Draw nodes
-    Object.values(positions).forEach(({ x, y, node }) => {
+    Object.values(positions).forEach(({ x, y, node }, index) => {
         // Get person data - could be from node or peopleMap
         let person = peopleMap[node.id];
         if (!person && node.name) {
-            // If it's a spouse node that wasn't in the main structure
-            person = {
-                id: node.id,
-                name: node.name,
-                gender: node.gender,
-                aliases: node.aliases || [],
-                birthYear: node.birthYear,
-                deathYear: node.deathYear,
-                notes: null
-            };
+            person = { id: node.id, name: node.name, gender: node.gender, aliases: node.aliases || [], birthYear: node.birthYear, deathYear: node.deathYear, notes: null };
         }
         if (!person) return;
-        
+
         const isRoot = node.id === rootPersonId;
-        const genderClass = person.gender === 'M' ? 'male' : 
-                           person.gender === 'F' ? 'female' : 'other';
-        
+        const genderClass = person.gender === 'M' ? 'male' :
+            person.gender === 'F' ? 'female' : 'other';
+
         const nodeGroup = g.append('g')
+            .data([person]) // Bind data for easier event handling
             .attr('class', `node ${genderClass} ${isRoot ? 'root' : ''}`)
-            .attr('transform', `translate(${x}, ${y})`)
-            .on('click', () => showPersonDetails(person));
-        
+            .attr('id', `node-${person.id}`) // Add ID for easy selection
+            .attr('transform', `translate(${x}, ${y}) scale(0)`)
+            .on('click', () => showPersonDetails(person))
+            .on('mouseover', function (event, d) {
+                // Dim Tree
+                svg.classed('tree-dimmed', true);
+
+                // Highlight Current Node
+                d3.select(this).classed('highlighted', true);
+
+                // Find Connected Links and Nodes
+                const connectedPersonIds = new Set();
+
+                // Highlight Parent-Child Links
+                svg.selectAll('.parent-child-link').each(function () {
+                    const link = d3.select(this);
+                    const p = link.attr('data-parent');
+                    const c = link.attr('data-child');
+
+                    if (p === d.id || c === d.id) {
+                        link.classed('highlighted', true);
+                        connectedPersonIds.add(p);
+                        connectedPersonIds.add(c);
+                    }
+                });
+
+                // Highlight Spouse Links
+                svg.selectAll('.spouse-link').each(function () {
+                    const link = d3.select(this);
+                    const p1 = link.attr('data-p1');
+                    const p2 = link.attr('data-p2');
+
+                    if (p1 === d.id || p2 === d.id) {
+                        link.classed('highlighted', true);
+                        connectedPersonIds.add(p1);
+                        connectedPersonIds.add(p2);
+                    }
+                });
+
+                // Highlight Connected Nodes
+                connectedPersonIds.forEach(id => {
+                    svg.select(`#node-${id}`).classed('highlighted', true);
+                });
+
+                // Show Cloud Tooltip
+                const age = d.birthYear ? (d.deathYear ? d.deathYear - d.birthYear : new Date().getFullYear() - d.birthYear) : 'Unknown';
+                const aliases = d.aliases && d.aliases.length > 0 ? d.aliases.join(', ') : 'None';
+
+                let content = `<div class="tooltip-name">${d.name}</div>`;
+                if (d.birthYear) content += `<div class="tooltip-detail"><span>Born</span> <span>${d.birthYear}</span></div>`;
+                if (d.deathYear) content += `<div class="tooltip-detail"><span>Died</span> <span>${d.deathYear}</span></div>`;
+                // Only show age if not dead or if we have birth year
+                if (d.birthYear) content += `<div class="tooltip-detail"><span>Age</span> <span>${age}</span></div>`;
+                if (d.aliases && d.aliases.length) content += `<div class="tooltip-detail"><span>Aliases</span> <span>${aliases}</span></div>`;
+
+                tooltip.html(content)
+                    .style("left", (event.pageX + 15) + "px")
+                    .style("top", (event.pageY - 15) + "px")
+                    .classed("show", true);
+            })
+            .on('mousemove', function (event) {
+                tooltip
+                    .style("left", (event.pageX + 15) + "px")
+                    .style("top", (event.pageY - 15) + "px");
+            })
+            .on('mouseout', function () {
+                // Reset Visuals
+                svg.classed('tree-dimmed', false);
+                svg.selectAll('.node').classed('highlighted', false);
+                svg.selectAll('.link').classed('highlighted', false);
+
+                // Hide Tooltip
+                tooltip.classed("show", false);
+            });
+
+        // Create content wrapper for safe animation
+        const nodeContent = nodeGroup.append('g')
+            .attr('class', 'node-content');
+
         // Draw circle
-        nodeGroup.append('circle')
-            .attr('r', isRoot ? nodeRadius + 5 : nodeRadius);
-        
+        nodeContent.append('circle')
+            .attr('r', isRoot ? nodeRadius + 10 : nodeRadius) // Slightly larger
+            .attr('fill', d => {
+                if (person.gender === 'M') return 'url(#maleGradient)';
+                if (person.gender === 'F') return 'url(#femaleGradient)';
+                return 'url(#otherGradient)';
+            })
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 3);
+
         // Draw label
-        const labelY = nodeRadius + 20;
-        nodeGroup.append('text')
+        const labelY = isRoot ? nodeRadius + 35 : nodeRadius + 25;
+        nodeContent.append('text')
             .attr('y', labelY)
             .text(person.name)
-            .attr('class', 'node-label');
+            .style('opacity', 0); // Start invisible
+
+        // Animate Node Entry
+        nodeGroup.transition()
+            .duration(800)
+            .delay(index * 50 + 500) // Start after links begin
+            .ease(d3.easeBackOut)
+            .attr('transform', `translate(${x}, ${y}) scale(1)`);
+
+        // Animate Text Entry
+        nodeGroup.select('text')
+            .transition()
+            .duration(800)
+            .delay(index * 50 + 800)
+            .style('opacity', 1);
     });
-    
+
     // Add zoom and pan functionality
     const zoom = d3.zoom()
-        .scaleExtent([0.3, 3])
+        .scaleExtent([0.1, 4]) // Allow wider zoom range
         .on('zoom', (event) => {
             g.attr('transform', event.transform);
             currentZoomTransform = event.transform;
             updateZoomDisplay(event.transform.k);
         });
-    
+
     svg.call(zoom);
-    
+
+    // Center the tree initially - focus on Root
+    const initialTransform = d3.zoomIdentity
+        .translate(width / 2, height / 2) // Move to center
+        .scale(0.8) // Start slightly zoomed out to see structure
+        .translate(-positions[rootPersonId].x, -positions[rootPersonId].y); // Center on root person
+
+    svg.call(zoom.transform, initialTransform);
+    currentZoomTransform = initialTransform;
+
+
     // Initialize zoom controls
     initZoomControls(zoom, svg);
 }
@@ -609,45 +792,45 @@ function initZoomControls(zoomBehavior, svg) {
     const zoomInBtn = document.getElementById('zoom-in-btn');
     const zoomOutBtn = document.getElementById('zoom-out-btn');
     const zoomResetBtn = document.getElementById('zoom-reset-btn');
-    
+
     if (!zoomInBtn || !zoomOutBtn || !zoomResetBtn) return;
-    
+
     function updateZoomDisplay(scale) {
         const zoomLevel = document.getElementById('zoom-level');
         if (zoomLevel) {
             zoomLevel.textContent = Math.round(scale * 100) + '%';
         }
     }
-    
+
     function zoomTo(scale) {
         const container = svg.node().getBoundingClientRect();
         const centerX = container.width / 2;
         const centerY = container.height / 2;
-        
+
         currentZoomTransform = d3.zoomIdentity
             .translate(centerX, centerY)
             .scale(scale)
             .translate(-centerX, -centerY);
-        
+
         svg.transition()
             .duration(200)
             .call(zoomBehavior.transform, currentZoomTransform);
     }
-    
+
     zoomInBtn.addEventListener('click', () => {
         const newScale = Math.min(currentZoomTransform.k * 1.2, 3);
         zoomTo(newScale);
     });
-    
+
     zoomOutBtn.addEventListener('click', () => {
         const newScale = Math.max(currentZoomTransform.k / 1.2, 0.3);
         zoomTo(newScale);
     });
-    
+
     zoomResetBtn.addEventListener('click', () => {
         zoomTo(1);
     });
-    
+
     // Initialize display
     updateZoomDisplay(1);
 }
@@ -665,32 +848,32 @@ function showPersonDetails(person) {
     const detailsDiv = document.getElementById('person-details');
     const nameDiv = document.getElementById('person-name');
     const infoDiv = document.getElementById('person-info');
-    
+
     detailsDiv.classList.remove('hidden');
     nameDiv.textContent = person.name;
-    
+
     let html = '';
-    
+
     if (person.aliases && person.aliases.length > 0) {
         html += `<div class="info-item"><strong>Aliases</strong><span>${person.aliases.join(', ')}</span></div>`;
     }
-    
+
     if (person.gender) {
         html += `<div class="info-item"><strong>Gender</strong><span>${person.gender}</span></div>`;
     }
-    
+
     if (person.birthYear) {
         html += `<div class="info-item"><strong>Birth Year</strong><span>${person.birthYear}</span></div>`;
     }
-    
+
     if (person.deathYear) {
         html += `<div class="info-item"><strong>Death Year</strong><span>${person.deathYear}</span></div>`;
     }
-    
+
     if (person.notes) {
         html += `<div class="info-item"><strong>Notes</strong><span>${person.notes}</span></div>`;
     }
-    
+
     infoDiv.innerHTML = html || '<div class="info-item">No additional information available.</div>';
 }
 
@@ -698,22 +881,92 @@ function showPersonDetails(person) {
 console.log('Tree visualization script loaded');
 console.log('Document ready state:', document.readyState);
 
+// Generate PNG Functionality
+async function generatePNG() {
+    const svgElement = document.getElementById('tree-svg');
+    const { width, height } = svgElement.getBoundingClientRect();
+
+    // 1. Get the current SVG content
+    const serializer = new XMLSerializer();
+    const clone = svgElement.cloneNode(true);
+
+    // 2. Embed Styles (Crucial for correct rendering)
+    const styleSheet = Array.from(document.styleSheets).find(s => s.href && s.href.includes('styles.css'));
+    let cssText = "";
+    if (styleSheet) {
+        try {
+            cssText = Array.from(styleSheet.cssRules).map(rule => rule.cssText).join('\n');
+        } catch (e) {
+            console.warn("Could not access stylesheet rules", e);
+        }
+    }
+
+    const styleElement = document.createElement('style');
+    styleElement.textContent = cssText;
+    clone.insertBefore(styleElement, clone.firstChild);
+
+    clone.setAttribute('width', width);
+    clone.setAttribute('height', height);
+
+    // 3. Serialize and Draw
+    const svgString = serializer.serializeToString(clone);
+    const img = new Image();
+
+    // Create Blob URL
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    img.onload = function () {
+        const canvas = document.createElement('canvas');
+        canvas.width = width * 2; // retina resolution
+        canvas.height = height * 2;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(2, 2);
+
+        // Draw Background (Simulated based on theme)
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (isDark) {
+            ctx.fillStyle = '#1b262c'; // Dark theme fallback base
+            ctx.fillRect(0, 0, width, height); // Fill background
+        } else {
+            ctx.fillStyle = '#f0f7ff'; // Light theme fallback base
+            // For transparent background in light mode, maybe skip fillRect or use white
+            // But usually nice to have a background
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Trigger Download
+        const a = document.createElement('a');
+        a.download = `family-tree-${new Date().toISOString().slice(0, 10)}.png`;
+        a.href = canvas.toDataURL('image/png');
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(url);
+    };
+
+    img.src = url;
+}
+
 // Initialize theme
 function initTheme() {
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
-    
+
     if (!themeToggle || !themeIcon) return;
-    
+
     // Get saved theme or default to light
     const savedTheme = localStorage.getItem('family-tree-theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     updateThemeIcon(savedTheme, themeIcon);
-    
+
     themeToggle.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
+
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('family-tree-theme', newTheme);
         updateThemeIcon(newTheme, themeIcon);
@@ -737,11 +990,18 @@ if (document.readyState === 'loading') {
         console.log('DOM loaded, initializing...');
         initTheme();
         init();
+
+        // Attach PNG listener here to be safe
+        const pngBtn = document.getElementById('generate-png-btn');
+        if (pngBtn) pngBtn.addEventListener('click', generatePNG);
     });
 } else {
     // DOM is already loaded
     console.log('DOM already loaded, initializing immediately...');
     initTheme();
     init();
-}
 
+    // Attach PNG listener here too
+    const pngBtn = document.getElementById('generate-png-btn');
+    if (pngBtn) pngBtn.addEventListener('click', generatePNG);
+}

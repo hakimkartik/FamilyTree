@@ -1,51 +1,78 @@
 :root {
-    /* Light theme colors */
-    --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --bg-secondary: #ffffff;
-    --bg-tertiary: #f8f9fa;
-    --text-primary: #333333;
-    --text-secondary: #666666;
+    /* Nature Theme - Light */
+    --bg-primary: linear-gradient(135deg, #e6f0ff 0%, #f0f7ff 100%);
+    /* Soft Sky Blue */
+    --bg-secondary: rgba(255, 255, 255, 0.9);
+    --bg-tertiary: rgba(240, 248, 255, 0.6);
+    --text-primary: #2c3e50;
+    --text-secondary: #5d4037;
+    /* Dark Wood */
     --text-inverse: #ffffff;
-    --border-color: #e0e0e0;
-    --shadow: rgba(0, 0, 0, 0.3);
-    --shadow-light: rgba(0, 0, 0, 0.15);
-    --node-male: #4a90e2;
-    --node-female: #e94b7d;
-    --node-other: #9b59b6;
-    --link-color: #999999;
-    --link-parent-child: #4ecdc4;
-    --link-spouse: #ff6b6b;
-    --accent-color: #667eea;
-    --accent-hover: #5568d3;
-    --success-bg: #d4edda;
-    --success-text: #155724;
-    --error-bg: #f8d7da;
-    --error-text: #721c24;
+    --border-color: rgba(139, 69, 19, 0.15);
+    /* SaddleBrown tint */
+
+    /* Shadows & Glows */
+    --shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+    --shadow-light: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+    --node-shadow: 0 4px 8px rgba(0, 100, 0, 0.15);
+
+    /* Nature Node Colors */
+    --node-male: #4caf50;
+    /* Green Leaf */
+    --node-female: #8bc34a;
+    /* Light Green Leaf */
+    --node-other: #cddc39;
+    /* Lime */
+
+    /* Links - Branches */
+    --link-color: #8d6e63;
+    /* Wood Brown */
+    --link-parent-child: #795548;
+    /* Darker Wood */
+    --link-spouse: #a1887f;
+    /* Lighter Wood */
+
+    --accent-color: #558b2f;
+    /* Deep Green */
+    --accent-hover: #33691e;
+    --success-bg: #dcedc8;
+    --success-text: #33691e;
+    --error-bg: #ffcdd2;
+    --error-text: #b71c1c;
 }
 
 [data-theme="dark"] {
-    /* Dark theme colors */
-    --bg-primary: linear-gradient(135deg, #2d1b4e 0%, #1a0d2e 100%);
-    --bg-secondary: #1e1e1e;
-    --bg-tertiary: #2d2d2d;
-    --text-primary: #e0e0e0;
-    --text-secondary: #b0b0b0;
+    /* Nature Theme - Dark (Night Forest) */
+    --bg-primary: linear-gradient(135deg, #1b262c 0%, #0f4c75 100%);
+    /* Deep Blue Night */
+    --bg-secondary: rgba(20, 30, 40, 0.85);
+    --bg-tertiary: rgba(30, 40, 50, 0.6);
+    --text-primary: #ffffff;
+    --text-secondary: #b0bec5;
     --text-inverse: #ffffff;
-    --border-color: #404040;
-    --shadow: rgba(0, 0, 0, 0.6);
-    --shadow-light: rgba(0, 0, 0, 0.3);
-    --node-male: #5ba3f5;
-    --node-female: #ff6b9d;
-    --node-other: #b47dd6;
-    --link-color: #666666;
-    --link-parent-child: #4ecdc4;
-    --link-spouse: #ff6b6b;
-    --accent-color: #7c8ef5;
-    --accent-hover: #6b7de4;
-    --success-bg: #1e4a2e;
-    --success-text: #90ee90;
-    --error-bg: #4a1e1e;
-    --error-text: #ff9999;
+    --border-color: rgba(255, 255, 255, 0.2);
+
+    /* Shadows & Glows */
+    --shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.5);
+    --shadow-light: 0 6px 15px -2px rgba(0, 0, 0, 0.3);
+    --node-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+
+    /* Node Colors - bioluminescent feel */
+    --node-male: #00e676;
+    --node-female: #69f0ae;
+    --node-other: #b9f6ca;
+
+    /* Links - Lighter for visibility on dark */
+    --link-color: #bcaaa4;
+    --link-parent-child: #d7ccc8;
+    --link-spouse: #efebe9;
+
+    --accent-color: #76ff03;
+    --accent-hover: #64dd17;
+    --success-bg: #1b5e20;
+    --success-text: #b9f6ca;
+    --error-bg: #b71c1c;
+    --error-text: #ff8a80;
 }
 
 * {
@@ -55,33 +82,38 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Outfit', 'Segoe UI', sans-serif;
+    /* Modern font */
     background: var(--bg-primary);
     min-height: 100vh;
     padding: 20px;
     color: var(--text-primary);
-    transition: background 0.3s ease, color 0.3s ease;
+    transition: background 0.5s ease, color 0.5s ease;
+    backdrop-filter: blur(5px);
+    /* Gentle glass effect */
 }
 
 .container {
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
     background: var(--bg-secondary);
-    border-radius: 15px;
-    box-shadow: 0 20px 60px var(--shadow);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
     overflow: hidden;
-    transition: background 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
 }
 
 header {
-    background: var(--bg-primary);
-    color: var(--text-inverse);
-    padding: 25px 30px;
+    background: transparent;
+    color: var(--text-primary);
+    padding: 30px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    transition: background 0.3s ease;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .header-controls {
@@ -91,57 +123,67 @@ header {
 }
 
 .theme-toggle {
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    /* Circle */
     cursor: pointer;
     font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: var(--shadow-light);
 }
 
 .theme-toggle:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.5);
-    transform: scale(1.05);
+    transform: rotate(15deg) scale(1.1);
+    background: var(--accent-color);
+    color: white;
+    border-color: transparent;
 }
 
 header h1 {
-    font-size: 2em;
-    font-weight: 600;
+    font-size: 2.2em;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--accent-color), #8d6e63);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
 }
 
 .mode-selector {
     display: flex;
     gap: 10px;
+    background: var(--bg-tertiary);
+    padding: 5px;
+    border-radius: 12px;
 }
 
 .mode-btn {
-    padding: 10px 20px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .mode-btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.5);
+    color: var(--text-primary);
 }
 
 .mode-btn.active {
-    background: white;
-    color: #667eea;
-    border-color: white;
+    background: var(--bg-secondary);
+    color: var(--accent-color);
+    box-shadow: var(--shadow-light);
 }
 
 .mode-btn:disabled {
@@ -153,9 +195,72 @@ header h1 {
     position: relative;
     width: 100%;
     height: 900px;
-    overflow: auto;
-    background: var(--bg-tertiary);
-    transition: background 0.3s ease;
+    overflow: hidden;
+    /* D3 Zoom handles panning */
+    background: radial-gradient(circle at center, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+    cursor: grab;
+}
+
+/* Floating Animation Keyframes */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* Apply animation to the CONTENT wrapper, not the node itself */
+.node-content {
+    animation: float 6s ease-in-out infinite;
+    /* Ensure the transform origin is center for any potential scaling */
+    transform-origin: center center;
+    transform-box: fill-box;
+    /* Critical for SVG groups to transform relative to themselves */
+    will-change: transform;
+}
+
+.node:hover .node-content {
+    animation-play-state: paused;
+}
+
+/* Randomize float animation for organic feel */
+.node:nth-of-type(2n) .node-content {
+    animation-duration: 5s;
+    animation-delay: 0.5s;
+}
+
+.node:nth-of-type(3n) .node-content {
+    animation-duration: 7s;
+    animation-delay: 1s;
+}
+
+.node:nth-of-type(4n) .node-content {
+    animation-duration: 4s;
+    animation-delay: 2s;
+}
+
+.node:nth-of-type(5n) .node-content {
+    animation-duration: 6.5s;
+    animation-delay: 1.5s;
+}
+
+.node:nth-of-type(7n) .node-content {
+    animation-duration: 5.5s;
+    animation-delay: 0.8s;
+}
+
+cursor: grab;
+}
+
+#tree-container:active {
+    cursor: grabbing;
 }
 
 #loading {
@@ -164,8 +269,25 @@ header h1 {
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 18px;
-    color: #667eea;
+    color: var(--accent-color);
     z-index: 10;
+    font-weight: 500;
+    letter-spacing: 1px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.6;
+    }
 }
 
 #tree-svg {
@@ -176,62 +298,90 @@ header h1 {
 
 .node {
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
-.node:hover circle {
-    stroke-width: 3px;
+.node:hover {
     filter: brightness(1.1);
 }
 
 .node circle {
+    /* fill: var(--bg-secondary); REMOVED to allow D3 gradients to show */
     stroke: #fff;
-    stroke-width: 2.5px;
+    stroke-width: 3px;
     transition: all 0.3s ease;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
 }
 
 .node.root circle {
     stroke: #ffd700;
-    stroke-width: 4px;
-    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+    stroke-width: 5px;
+    r: 35;
+    /* Larger root */
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.5));
+    animation: glow-pulse 3s infinite;
+}
+
+@keyframes glow-pulse {
+    0% {
+        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.7));
+    }
+
+    100% {
+        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4));
+    }
 }
 
 .node.male circle {
-    fill: var(--node-male);
+    filter: drop-shadow(0 5px 10px rgba(76, 175, 80, 0.3));
+    /* Green shadow */
 }
 
 .node.female circle {
-    fill: var(--node-female);
+    filter: drop-shadow(0 5px 10px rgba(139, 195, 74, 0.3));
+    /* Light Green shadow */
 }
 
 .node.other circle {
-    fill: var(--node-other);
+    /* No specific filter for other yet */
 }
 
 .node text {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 12px;
+    font-family: 'Outfit', 'Segoe UI', sans-serif;
+    font-size: 13px;
     fill: var(--text-primary);
     pointer-events: none;
     text-anchor: middle;
-    font-weight: 500;
+    font-weight: 600;
     transition: fill 0.3s ease;
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .node text {
+    fill: #ffffff;
+    text-shadow: none;
+    paint-order: stroke;
+    stroke: #0f2027;
+    /* Dark background color match */
+    stroke-width: 4px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    font-weight: 700;
 }
 
 .node-label {
+    /* SVG text doesn't use this class usually, but if we used foreignObject */
     background: var(--bg-secondary);
     padding: 8px 12px;
     border-radius: 6px;
     box-shadow: 0 2px 8px var(--shadow-light);
     border: 1px solid var(--border-color);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-primary);
-    max-width: 150px;
-    text-align: center;
-    word-wrap: break-word;
-    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
+
 
 .link {
     fill: none;
@@ -249,7 +399,7 @@ header h1 {
 .spouse-link {
     stroke: var(--link-spouse);
     stroke-width: 2.5px;
-    stroke-dasharray: 5,5;
+    stroke-dasharray: 5, 5;
 }
 
 .parent-child-link {
@@ -658,3 +808,111 @@ header h1 {
     color: rgba(255, 255, 255, 0.8);
 }
 
+/* Cloud Tooltip */
+.cloud-tooltip {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+    /* Let mouse events pass through */
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 1000;
+    font-size: 14px;
+    color: var(--text-primary);
+    max-width: 250px;
+    border: 1px solid var(--border-color);
+    transform: translateY(10px);
+}
+
+.cloud-tooltip.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* "Cloud" bumps using pseudo-elements for extra fluffiness (optional, keeping simple for cleanliness first) */
+.cloud-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 8px 8px 0;
+    border-style: solid;
+    border-color: rgba(255, 255, 255, 0.95) transparent transparent transparent;
+}
+
+.tooltip-name {
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+.tooltip-detail {
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.tooltip-detail span:first-child {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* Dark Mode Tooltip Overrides */
+[data-theme="dark"] .cloud-tooltip {
+    color: #333333;
+    /* Dark text on white cloud */
+}
+
+[data-theme="dark"] .tooltip-name {
+    color: #e91e63;
+    /* Pink Name */
+}
+
+[data-theme="dark"] .tooltip-detail span:first-child {
+    color: #666666;
+    /* Dark Grey Labels */
+}
+
+[data-theme="dark"] .tooltip-detail span:last-child {
+    color: #e91e63;
+    /* Pink Values */
+}
+
+/* Interactivity & Highlighting */
+.node {
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.link {
+    transition: stroke-opacity 0.3s ease, stroke-width 0.3s ease, stroke 0.3s ease;
+}
+
+/* Dimmed state for non-connected elements */
+.tree-dimmed .node:not(.highlighted),
+.tree-dimmed .link:not(.highlighted) {
+    opacity: 0.2;
+    filter: grayscale(0.5);
+}
+
+/* Highlighted state */
+.node.highlighted circle {
+    stroke: #ffd700;
+    /* Gold stroke */
+    stroke-width: 4px;
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+}
+
+.link.highlighted {
+    stroke: #ffd700 !important;
+    /* Gold connection */
+    opacity: 1 !important;
+    stroke-width: 4px !important;
+    stroke-dasharray: none !important;
+    /* Solid line for highlighted */
+}
