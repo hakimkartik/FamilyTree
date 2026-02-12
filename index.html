@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Tree - Kartik Hakim</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Family Tree</h1>
+            <div class="header-controls">
+                <div class="mode-selector">
+                    <button id="view-mode" class="mode-btn active">View Tree</button>
+                    <button id="edit-mode" class="mode-btn" disabled>Edit Tree</button>
+                </div>
+                <button id="theme-toggle" class="theme-toggle" title="Toggle Dark/Light Mode">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+        
+        <div id="view-panel">
+        <div id="tree-container">
+            <div id="loading">Loading family tree...</div>
+            <div id="zoom-controls">
+                <button id="zoom-out-btn" class="zoom-btn" title="Zoom Out">−</button>
+                <span id="zoom-level">100%</span>
+                <button id="zoom-in-btn" class="zoom-btn" title="Zoom In">+</button>
+                <button id="zoom-reset-btn" class="zoom-btn" title="Reset Zoom">⌂</button>
+            </div>
+            <svg id="tree-svg"></svg>
+        </div>
+            
+            <div id="person-details" class="hidden">
+                <h3 id="person-name"></h3>
+                <div id="person-info"></div>
+            </div>
+        </div>
+        
+        <div id="edit-panel" class="hidden">
+            <div class="edit-container">
+                <div class="edit-section">
+                    <h2>Add New Person</h2>
+                    <form id="add-person-form">
+                        <div class="form-group">
+                            <label for="person-name-input">Full Name *</label>
+                            <input type="text" id="person-name-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="person-id-input">ID (auto-generated if empty)</label>
+                            <input type="text" id="person-id-input" placeholder="Will be generated from name">
+                        </div>
+                        <div class="form-group">
+                            <label for="person-gender">Gender</label>
+                            <select id="person-gender">
+                                <option value="">Select...</option>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="person-aliases">Aliases (comma-separated)</label>
+                            <input type="text" id="person-aliases" placeholder="e.g., Nickname, Alt Name">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="person-birth-year">Birth Year</label>
+                                <input type="number" id="person-birth-year" placeholder="e.g., 1990">
+                            </div>
+                            <div class="form-group">
+                                <label for="person-death-year">Death Year</label>
+                                <input type="number" id="person-death-year" placeholder="e.g., 2020">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="person-notes">Notes</label>
+                            <textarea id="person-notes" rows="3" placeholder="Additional information..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Person</button>
+                    </form>
+                </div>
+                
+                <div class="edit-section">
+                    <h2>Add Relationship</h2>
+                    <div class="relationship-tabs">
+                        <button class="tab-btn active" data-tab="parent-child">Parent-Child</button>
+                        <button class="tab-btn" data-tab="spouse">Spouse</button>
+                    </div>
+                    
+                    <form id="add-parent-child-form" class="relationship-form">
+                        <div class="form-group">
+                            <label for="parent-search">Parent *</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="parent-search" class="autocomplete-input" placeholder="Type to search..." autocomplete="off" required>
+                                <input type="hidden" id="parent-select">
+                                <div id="parent-suggestions" class="autocomplete-suggestions"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="child-search">Child *</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="child-search" class="autocomplete-input" placeholder="Type to search..." autocomplete="off" required>
+                                <input type="hidden" id="child-select">
+                                <div id="child-suggestions" class="autocomplete-suggestions"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="biological-relation" checked>
+                                Biological relationship
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="parent-child-notes">Notes</label>
+                            <textarea id="parent-child-notes" rows="2"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Relationship</button>
+                    </form>
+                    
+                    <form id="add-spouse-form" class="relationship-form hidden">
+                        <div class="form-group">
+                            <label for="spouse1-search">First Spouse *</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="spouse1-search" class="autocomplete-input" placeholder="Type to search..." autocomplete="off" required>
+                                <input type="hidden" id="spouse1-select">
+                                <div id="spouse1-suggestions" class="autocomplete-suggestions"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="spouse2-search">Second Spouse *</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="spouse2-search" class="autocomplete-input" placeholder="Type to search..." autocomplete="off" required>
+                                <input type="hidden" id="spouse2-select">
+                                <div id="spouse2-suggestions" class="autocomplete-suggestions"></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="marriage-year">Marriage Year</label>
+                                <input type="number" id="marriage-year" placeholder="e.g., 1990">
+                            </div>
+                            <div class="form-group">
+                                <label for="divorce-year">Divorce/End Year</label>
+                                <input type="number" id="divorce-year" placeholder="e.g., 2020">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="spouse-notes">Notes</label>
+                            <textarea id="spouse-notes" rows="2"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Relationship</button>
+                    </form>
+                </div>
+                
+                <div class="edit-section">
+                    <h2>Save Changes</h2>
+                    <p class="info-text">Your changes are saved in memory. Download the updated JSON file to save permanently.</p>
+                    <button id="download-json-btn" class="btn btn-success">Download Updated JSON</button>
+                    <button id="reload-data-btn" class="btn btn-secondary">Reload Original Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="tree-visualization.js"></script>
+    <script src="autocomplete.js"></script>
+    <script src="edit-mode.js"></script>
+</body>
+</html>
+
