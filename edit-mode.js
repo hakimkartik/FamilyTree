@@ -51,10 +51,8 @@ function initEditMode() {
     });
 
     // Form submissions
-    const editBtn = document.getElementById('edit-mode');
-    if (editBtn) {
-        editBtn.addEventListener('click', toggleEditMode);
-    }
+    // editBtn listener removed as it was duplicating functionality and referencing undefined toggleEditMode
+
 
     // Forms
     const addParentChildForm = document.getElementById('add-parent-child-form');
@@ -77,20 +75,38 @@ function initEditMode() {
         editPersonForm.addEventListener('submit', handleUpdatePerson); // Changed to handleUpdatePerson as per existing code
     }
 
-    // Save Buttons
+    // Save Buttons - Debugging & Robust Attachment
     const saveServerBtn = document.getElementById('save-server-btn');
     if (saveServerBtn) {
-        saveServerBtn.addEventListener('click', saveToServer);
+        console.log('Attaching Save to Server listener');
+        const newBtn = saveServerBtn.cloneNode(true);
+        saveServerBtn.parentNode.replaceChild(newBtn, saveServerBtn);
+        newBtn.addEventListener('click', (e) => {
+            console.log('Save to Server clicked');
+            saveToServer();
+        });
+    } else {
+        console.error('Save Server Button NOT FOUND');
     }
 
     const downloadJsonBtn = document.getElementById('download-json-btn');
     if (downloadJsonBtn) {
-        downloadJsonBtn.addEventListener('click', downloadJSON);
+        console.log('Attaching Download JSON listener');
+        const newBtn = downloadJsonBtn.cloneNode(true);
+        downloadJsonBtn.parentNode.replaceChild(newBtn, downloadJsonBtn);
+        newBtn.addEventListener('click', (e) => {
+            console.log('Download JSON clicked');
+            downloadJSON();
+        });
+    } else {
+        console.error('Download JSON Button NOT FOUND');
     }
 
     const reloadBtn = document.getElementById('reload-data-btn');
     if (reloadBtn) {
-        reloadBtn.addEventListener('click', reloadOriginalData);
+        const newBtn = reloadBtn.cloneNode(true);
+        reloadBtn.parentNode.replaceChild(newBtn, reloadBtn);
+        newBtn.addEventListener('click', reloadOriginalData);
     }
 
     // Tabs

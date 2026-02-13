@@ -4,7 +4,7 @@
     "rootPersonId": "kartik",
     "notes": "",
     "created": "2026-02-11T16:18:12.968944",
-    "modified": "2026-02-12T16:48:45.547Z"
+    "modified": "2026-02-13T18:40:53.587Z"
   },
   "people": [
     {
@@ -23,11 +23,11 @@
       "name": "Ramesh Hakim",
       "gender": "M",
       "aliases": [
-        "kuku ji"
+        "Kuku ji"
       ],
-      "birthYear": null,
+      "birthYear": 1963,
       "deathYear": null,
-      "notes": null
+      "notes": "https://www.dailyexcelsior.com/six-principals-assigned-look-after-charge-of-ceos/\n\nhttps://www.youtube.com/@rameshhakim7931/videos?app=desktop"
     },
     {
       "id": "aneeta",
@@ -271,6 +271,435 @@
       "birthYear": null,
       "deathYear": null,
       "notes": null
+    },
+    {
+      "id": "bansi_lal_sapru",
+      "name": "Bansi Lal Sapru",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "mohini_hakim",
+      "name": "Mohini Hakim",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "roop_narayan_pishen",
+      "name": "Roop Narayan Pishen",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "raka_pishen",
+      "name": "Raka Pishen",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "rakesh_pishen",
+      "name": "Rakesh Pishen",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "deepak_pishen",
+      "name": "Deepak Pishen",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "nancy_jalali",
+      "name": "Nancy Jalali",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "anand_joo_hakim",
+      "name": "Dr. Anand Joo Hakim",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": "Official Unani physician to Maharaja Hari Singh, the last ruling Maharaja of Jammu & Kashmir. Son of Dr. Sudarshan Joo Hakim."
+    },
+    {
+      "id": "janki_nath_hakim",
+      "name": "Dr. Janki Nath Hakim",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": 1913,
+      "deathYear": 1985,
+      "notes": "Born in Srinagar. B.Sc. (Srinagar) and A.M.S. from Banaras Hindu University. Principal of Unani & Tibbia College Srinagar and Gopabandhu Ayurveda Mahavidyalaya (Odisha). Major contributor to Indian Systems of Medicine and helped institutionalize Ayurveda education (BAMS curriculum). Honorary physician to national leaders."
+    },
+    {
+      "id": "sudarshan_joo_hakim",
+      "name": "Dr. Sudarshan Joo Hakim",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": "Earliest documented ancestor in the Hakim lineage. A renowned Unani Hakim (traditional physician) of Srinagar, Kashmir. The 'Hakim' surname originates from this professional medical title."
+    },
+    {
+      "id": "hl_hakim",
+      "name": "HL Hakim",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "ashok_hakim",
+      "name": "Ashok Hakim",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": "Researcher associated with AYUSH and Indian Systems of Medicine. Son of Dr. Janki Nath Hakim."
+    },
+    {
+      "id": "santosh_hakim",
+      "name": "Santosh Hakim",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "jagdish_hakim",
+      "name": "Jagdish Hakim",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": "Identified in historical records as Dr. Jagdish Kumar Dhar Hakim, former Chief Scientist (Herbal Drugs) at CSIR. Son of Dr. Janki Nath Hakim."
+    },
+    {
+      "id": "sushil_hakim",
+      "name": "Sushil Hakim",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "jaya_hakim",
+      "name": "Jaya Hakim",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "meena_hakim",
+      "name": "Meena Hakim",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "sana_pishen",
+      "name": "Sana Pishen",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "sidhartha_pishen",
+      "name": "Sidhartha Pishen",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "neha_pishen",
+      "name": "Neha Pishen",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "ananta_pishen",
+      "name": "Ananta Pishen",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "prakash_nath_sapru",
+      "name": "Prakash Nath Sapru",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "kudmal",
+      "name": "Kudmal",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": "Kudmal Ded"
+    },
+    {
+      "id": "ravindra_sapru",
+      "name": "Ravindra Sapru",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "sunita_sapru",
+      "name": "Sunita Sapru",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "sushil_bamzai",
+      "name": "Sushil Bamzai",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "amit_bamzai",
+      "name": "Amit Bamzai",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "mahesh_bamzai",
+      "name": "Mahesh Bamzai",
+      "gender": "M",
+      "aliases": [
+        "Kutti"
+      ],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "kunal_sapru",
+      "name": "Kunal Sapru",
+      "gender": "M",
+      "aliases": [
+        "Vasu"
+      ],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "prinyanka_sapru",
+      "name": "Prinyanka Sapru",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "ratni_sapru",
+      "name": "Ratni Sapru",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "mohini_sapru",
+      "name": "Mohini Sapru",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "chamanlal_chrungoo",
+      "name": "Chamanlal Chrungoo",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "pran_nath_pandita",
+      "name": "Pran Nath Pandita",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "vijay_sapru",
+      "name": "Vijay Sapru",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "ashok_kumar_koul",
+      "name": "Ashok Kumar Koul",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "ajay_chrungoo",
+      "name": "Ajay Chrungoo",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "saroj_saraf",
+      "name": "Saroj Saraf",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": "Aahi"
+    },
+    {
+      "id": "zaafal_chrungoo",
+      "name": "Zaafal Chrungoo",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "pranav_chrungoo",
+      "name": "Pranav Chrungoo",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "renu_chrungoo",
+      "name": "Renu Chrungoo",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": "Dimple"
+    },
+    {
+      "id": "ritu_chrungoo",
+      "name": "Ritu Chrungoo",
+      "gender": "F",
+      "aliases": [
+        "Nikki"
+      ],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "vikas_koul",
+      "name": "Vikas Koul",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": "Vipin ji"
+    },
+    {
+      "id": "anil_pandita",
+      "name": "Anil Pandita",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "sunny_pandita",
+      "name": "Sunny Pandita",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "sheen_pandita",
+      "name": "Sheen Pandita",
+      "gender": "F",
+      "aliases": [],
+      "birthYear": 1995,
+      "deathYear": null,
+      "notes": null
+    },
+    {
+      "id": "sunil_hakim",
+      "name": "Sunil Hakim",
+      "gender": "M",
+      "aliases": [],
+      "birthYear": null,
+      "deathYear": null,
+      "notes": "Deceased"
     }
   ],
   "relationships": [
@@ -713,6 +1142,936 @@
       "type": "parentChild",
       "parentId": "anita_hakim",
       "childId": "krish_koul",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "shambhu_nath_sapru",
+      "childId": "bansi_lal_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "shambhu_nath_sapru",
+      "childId": "bansi_lal_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "somavati_sapru",
+      "childId": "bansi_lal_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "somavati_sapru",
+      "childId": "bansi_lal_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "bal_kak_hakim",
+      "childId": "mohini_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "bal_kak_hakim",
+      "childId": "mohini_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "lach_kunj_hakim",
+      "childId": "mohini_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "lach_kunj_hakim",
+      "childId": "mohini_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "roop_narayan_pishen",
+        "mohini_hakim"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "roop_narayan_pishen",
+        "mohini_hakim"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "roop_narayan_pishen",
+      "childId": "rakesh_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "roop_narayan_pishen",
+      "childId": "rakesh_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "roop_narayan_pishen",
+      "childId": "deepak_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "roop_narayan_pishen",
+      "childId": "deepak_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "roop_narayan_pishen",
+      "childId": "raka_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "roop_narayan_pishen",
+      "childId": "raka_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "mohini_hakim",
+      "childId": "deepak_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "mohini_hakim",
+      "childId": "deepak_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "mohini_hakim",
+      "childId": "raka_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "mohini_hakim",
+      "childId": "raka_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "mohini_hakim",
+      "childId": "rakesh_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "mohini_hakim",
+      "childId": "rakesh_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "bansi_lal_sapru",
+        "nancy_jalali"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "bansi_lal_sapru",
+        "nancy_jalali"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "anand_joo_hakim",
+      "childId": "janki_nath_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "anand_joo_hakim",
+      "childId": "janki_nath_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "sudarshan_joo_hakim",
+      "childId": "anand_joo_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "sudarshan_joo_hakim",
+      "childId": "anand_joo_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "sudarshan_joo_hakim",
+      "childId": "bal_kak_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "sudarshan_joo_hakim",
+      "childId": "bal_kak_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "ashok_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "ashok_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "hl_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "hl_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "santosh_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "santosh_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "jagdish_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "jagdish_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "jaya_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "jaya_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "sushil_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "sushil_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "meena_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "janki_nath_hakim",
+      "childId": "meena_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "deepak_pishen",
+      "childId": "sana_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "deepak_pishen",
+      "childId": "sana_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "deepak_pishen",
+      "childId": "sidhartha_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "deepak_pishen",
+      "childId": "sidhartha_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "raka_pishen",
+      "childId": "neha_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "raka_pishen",
+      "childId": "neha_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "rakesh_pishen",
+      "childId": "ananta_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "rakesh_pishen",
+      "childId": "ananta_pishen",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "prakash_nath_sapru",
+      "childId": "shambhu_nath_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "prakash_nath_sapru",
+      "childId": "shambhu_nath_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "prakash_nath_sapru",
+        "kudmal"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "prakash_nath_sapru",
+        "kudmal"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "bansi_lal_sapru",
+      "childId": "ravindra_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "bansi_lal_sapru",
+      "childId": "ravindra_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "bansi_lal_sapru",
+      "childId": "sunita_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "bansi_lal_sapru",
+      "childId": "sunita_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "nancy_jalali",
+      "childId": "ravindra_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "nancy_jalali",
+      "childId": "ravindra_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "nancy_jalali",
+      "childId": "sunita_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "nancy_jalali",
+      "childId": "sunita_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "sushil_bamzai",
+        "sunita_sapru"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "sushil_bamzai",
+        "sunita_sapru"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "sunita_sapru",
+      "childId": "amit_bamzai",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "sunita_sapru",
+      "childId": "amit_bamzai",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "sunita_sapru",
+      "childId": "mahesh_bamzai",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "sunita_sapru",
+      "childId": "mahesh_bamzai",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "sushil_bamzai",
+      "childId": "amit_bamzai",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "sushil_bamzai",
+      "childId": "amit_bamzai",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "sushil_bamzai",
+      "childId": "mahesh_bamzai",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "sushil_bamzai",
+      "childId": "mahesh_bamzai",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ravindra_sapru",
+      "childId": "kunal_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ravindra_sapru",
+      "childId": "kunal_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ravindra_sapru",
+      "childId": "prinyanka_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ravindra_sapru",
+      "childId": "prinyanka_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "mohini_sapru",
+        "chamanlal_chrungoo"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "mohini_sapru",
+        "chamanlal_chrungoo"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "shambhu_nath_sapru",
+      "childId": "ratni_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "shambhu_nath_sapru",
+      "childId": "ratni_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "shambhu_nath_sapru",
+      "childId": "mohini_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "shambhu_nath_sapru",
+      "childId": "mohini_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "shambhu_nath_sapru",
+      "childId": "vijay_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "shambhu_nath_sapru",
+      "childId": "vijay_sapru",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "ashok_kumar_koul",
+        "vijay_sapru"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "ashok_kumar_koul",
+        "vijay_sapru"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "pran_nath_pandita",
+        "ratni_sapru"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "pran_nath_pandita",
+        "ratni_sapru"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "chamanlal_chrungoo",
+      "childId": "ajay_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "chamanlal_chrungoo",
+      "childId": "ajay_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "mohini_sapru",
+      "childId": "ajay_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "mohini_sapru",
+      "childId": "ajay_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "ajay_chrungoo",
+        "saroj_saraf"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "spouse",
+      "people": [
+        "ajay_chrungoo",
+        "saroj_saraf"
+      ],
+      "startYear": null,
+      "endYear": null,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ajay_chrungoo",
+      "childId": "zaafal_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ajay_chrungoo",
+      "childId": "zaafal_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ajay_chrungoo",
+      "childId": "pranav_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ajay_chrungoo",
+      "childId": "pranav_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "chamanlal_chrungoo",
+      "childId": "renu_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "chamanlal_chrungoo",
+      "childId": "renu_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "chamanlal_chrungoo",
+      "childId": "ritu_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "chamanlal_chrungoo",
+      "childId": "ritu_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "mohini_sapru",
+      "childId": "ritu_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "mohini_sapru",
+      "childId": "ritu_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "mohini_sapru",
+      "childId": "renu_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "mohini_sapru",
+      "childId": "renu_chrungoo",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ashok_kumar_koul",
+      "childId": "vikas_koul",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ashok_kumar_koul",
+      "childId": "vikas_koul",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "vijay_sapru",
+      "childId": "vikas_koul",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "vijay_sapru",
+      "childId": "vikas_koul",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ratni_sapru",
+      "childId": "anil_pandita",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ratni_sapru",
+      "childId": "anil_pandita",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ratni_sapru",
+      "childId": "sunny_pandita",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "ratni_sapru",
+      "childId": "sunny_pandita",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "pran_nath_pandita",
+      "childId": "anil_pandita",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "pran_nath_pandita",
+      "childId": "anil_pandita",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "pran_nath_pandita",
+      "childId": "sunny_pandita",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "pran_nath_pandita",
+      "childId": "sunny_pandita",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "anil_pandita",
+      "childId": "sheen_pandita",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "anil_pandita",
+      "childId": "sheen_pandita",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "giridhari",
+      "childId": "sunil_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "giridhari",
+      "childId": "sunil_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "rani",
+      "childId": "sunil_hakim",
+      "biological": true,
+      "notes": null
+    },
+    {
+      "type": "parentChild",
+      "parentId": "rani",
+      "childId": "sunil_hakim",
       "biological": true,
       "notes": null
     }

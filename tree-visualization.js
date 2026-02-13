@@ -122,6 +122,7 @@ function buildTreeStructure() {
             aliases: person.aliases || [],
             birthYear: person.birthYear,
             deathYear: person.deathYear,
+            notes: person.notes,
             level: level,
             children: [],
             spouses: []
@@ -148,6 +149,7 @@ function buildTreeStructure() {
                             aliases: spouse.aliases || [],
                             birthYear: spouse.birthYear,
                             deathYear: spouse.deathYear,
+                            notes: spouse.notes,
                             level: level
                         });
                     }
@@ -172,6 +174,7 @@ function buildTreeStructure() {
             aliases: person.aliases || [],
             birthYear: person.birthYear,
             deathYear: person.deathYear,
+            notes: person.notes,
             level: level,
             children: [],
             spouses: [],
@@ -203,17 +206,11 @@ function buildTreeStructure() {
             });
 
             allSiblings.forEach(siblingId => {
-                const sibling = peopleMap[siblingId];
-                if (sibling) {
-                    node.siblings.push({
-                        id: siblingId,
-                        name: sibling.name,
-                        gender: sibling.gender,
-                        aliases: sibling.aliases || [],
-                        birthYear: sibling.birthYear,
-                        deathYear: sibling.deathYear,
-                        level: level
-                    });
+                // Use buildNodeDown to fetch the full subtree for this sibling!
+                // This ensures cousins and distant relatives are included.
+                const siblingNode = buildNodeDown(siblingId, visited, level);
+                if (siblingNode) {
+                    node.siblings.push(siblingNode);
                 }
             });
         }
@@ -231,6 +228,7 @@ function buildTreeStructure() {
                             aliases: spouse.aliases || [],
                             birthYear: spouse.birthYear,
                             deathYear: spouse.deathYear,
+                            notes: spouse.notes,
                             level: level
                         });
                     }
@@ -250,6 +248,7 @@ function buildTreeStructure() {
         aliases: rootPerson.aliases || [],
         birthYear: rootPerson.birthYear,
         deathYear: rootPerson.deathYear,
+        notes: rootPerson.notes,
         level: 0,
         children: [],
         spouses: [],
@@ -289,17 +288,17 @@ function buildTreeStructure() {
         });
 
         allSiblings.forEach(siblingId => {
-            const sibling = peopleMap[siblingId];
-            if (sibling) {
-                root.siblings.push({
-                    id: siblingId,
-                    name: sibling.name,
-                    gender: sibling.gender,
-                    aliases: sibling.aliases || [],
-                    birthYear: sibling.birthYear,
-                    deathYear: sibling.deathYear,
-                    level: 0
-                });
+            // Use buildNodeDown for root siblings too
+            // Note: visitedDown is used here to match the downward traversal context
+            // But we need to use a visited set that accounts for what we've seen.
+            // Actually, root.siblings are lateral.
+            // Let's use buildNodeDown but be careful about the visited set.
+            // Since buildNodeDown checks visited, we should pass the global visited set if we had one?
+            // Here we have visitedDown and visitedUp.
+            // Let's use visitedDown as they are effectively downward branches from the parent level.
+            const siblingNode = buildNodeDown(siblingId, visitedDown, 0);
+            if (siblingNode) {
+                root.siblings.push(siblingNode);
             }
         });
     }
@@ -316,6 +315,7 @@ function buildTreeStructure() {
                     aliases: spouse.aliases || [],
                     birthYear: spouse.birthYear,
                     deathYear: spouse.deathYear,
+                    notes: spouse.notes,
                     level: 0
                 });
             }
@@ -363,6 +363,7 @@ function calculatePositions(root) {
                             aliases: spouse.aliases || [],
                             birthYear: spouse.birthYear,
                             deathYear: spouse.deathYear,
+                            notes: spouse.notes,
                             level: level
                         });
                     }
@@ -383,6 +384,7 @@ function calculatePositions(root) {
                             aliases: sibling.aliases || [],
                             birthYear: sibling.birthYear,
                             deathYear: sibling.deathYear,
+                            notes: sibling.notes,
                             level: level
                         });
 
@@ -403,30 +405,18 @@ function calculatePositions(root) {
                                         aliases: spouse.aliases || [],
                                         birthYear: spouse.birthYear,
                                         deathYear: spouse.deathYear,
+                                        notes: spouse.notes,
                                         level: level
                                     });
                                 }
                             }
                         });
 
-                        // Also process children of siblings (nephews/nieces)
-                        if (childrenMap[sibling.id]) {
-                            childrenMap[sibling.id].forEach(childId => {
-                                if (!visited.has(childId) && peopleMap[childId]) {
-                                    const child = peopleMap[childId];
-                                    const childNode = {
-                                        id: childId,
-                                        name: child.name,
-                                        gender: child.gender,
-                                        aliases: child.aliases || [],
-                                        birthYear: child.birthYear,
-                                        deathYear: child.deathYear,
-                                        level: level + 1,
-                                        children: []
-                                    };
-                                    collectNodes(childNode, level + 1);
-                                }
-                            });
+
+                        // Process children of siblings (nephews/nieces/cousins) using recursion
+                        // sibling is now a full node structure from buildNodeDown
+                        if (sibling.children && sibling.children.length > 0) {
+                            sibling.children.forEach(child => collectNodes(child, level + 1));
                         }
                     }
                 }
@@ -511,25 +501,25 @@ function renderTree() {
     // Define Gradients - NATURE THEME
     const defs = svg.append("defs");
 
-    // Male Gradient - Fresh Green Leaf
+    // Male Gradient - Sky Blue
     const maleGradient = defs.append("linearGradient")
         .attr("id", "maleGradient")
         .attr("x1", "0%")
         .attr("y1", "0%")
         .attr("x2", "100%")
         .attr("y2", "100%");
-    maleGradient.append("stop").attr("offset", "0%").attr("stop-color", "#66bb6a");
-    maleGradient.append("stop").attr("offset", "100%").attr("stop-color", "#43a047");
+    maleGradient.append("stop").attr("offset", "0%").attr("stop-color", "#4FC3F7"); // Light Blue
+    maleGradient.append("stop").attr("offset", "100%").attr("stop-color", "#039BE5"); // Darker Blue
 
-    // Female Gradient - Spring Green / slightly lighter
+    // Female Gradient - Pink
     const femaleGradient = defs.append("linearGradient")
         .attr("id", "femaleGradient")
         .attr("x1", "0%")
         .attr("y1", "0%")
         .attr("x2", "100%")
         .attr("y2", "100%");
-    femaleGradient.append("stop").attr("offset", "0%").attr("stop-color", "#9ccc65");
-    femaleGradient.append("stop").attr("offset", "100%").attr("stop-color", "#7cb342");
+    femaleGradient.append("stop").attr("offset", "0%").attr("stop-color", "#F48FB1"); // Light Pink
+    femaleGradient.append("stop").attr("offset", "100%").attr("stop-color", "#E91E63"); // Darker Pink
 
     // Other Gradient
     const otherGradient = defs.append("linearGradient")
@@ -692,26 +682,35 @@ function renderTree() {
                 });
 
                 // Show Cloud Tooltip
-                const age = d.birthYear ? (d.deathYear ? d.deathYear - d.birthYear : new Date().getFullYear() - d.birthYear) : 'Unknown';
-                const aliases = d.aliases && d.aliases.length > 0 ? d.aliases.join(', ') : 'None';
+                const age = person.birthYear ? (person.deathYear ? person.deathYear - person.birthYear : new Date().getFullYear() - person.birthYear) : 'Unknown';
+                const aliases = person.aliases && person.aliases.length > 0 ? person.aliases.join(', ') : 'None';
+                // Use person.notes here
+                const notes = person.notes ? person.notes : null;
 
-                let content = `<div class="tooltip-name">${d.name}</div>`;
-                if (d.birthYear) content += `<div class="tooltip-detail"><span>Born</span> <span>${d.birthYear}</span></div>`;
-                if (d.deathYear) content += `<div class="tooltip-detail"><span>Died</span> <span>${d.deathYear}</span></div>`;
-                // Only show age if not dead or if we have birth year
-                if (d.birthYear) content += `<div class="tooltip-detail"><span>Age</span> <span>${age}</span></div>`;
-                if (d.aliases && d.aliases.length) content += `<div class="tooltip-detail"><span>Aliases</span> <span>${aliases}</span></div>`;
+                let content = `<div class="tooltip-name">${person.name}</div>`;
+                if (person.birthYear) content += `<div class="tooltip-detail"><span>Born</span> <span>${person.birthYear}</span></div>`;
+                if (person.deathYear) content += `<div class="tooltip-detail"><span>Died</span> <span>${person.deathYear}</span></div>`;
+                if (person.birthYear) content += `<div class="tooltip-detail"><span>Age</span> <span>${age}</span></div>`;
+                if (person.aliases && person.aliases.length) content += `<div class="tooltip-detail"><span>Aliases</span> <span>${aliases}</span></div>`;
+                if (notes) content += `<div class="tooltip-detail note"><span>Notes</span> <span>${notes}</span></div>`;
+
+                // Calculate position relative to the node, not the mouse
+                const bounds = this.getBoundingClientRect();
+                const scrollX = window.scrollX || window.pageXOffset;
+                const scrollY = window.scrollY || window.pageYOffset;
+
+                // Position: Center horizontally, Above the node
+                const tooltipX = scrollX + bounds.left + (bounds.width / 2);
+                const tooltipY = scrollY + bounds.top - 15; // 15px gap
 
                 tooltip.html(content)
-                    .style("left", (event.pageX + 15) + "px")
-                    .style("top", (event.pageY - 15) + "px")
+                    .style("left", tooltipX + "px")
+                    .style("top", tooltipY + "px")
+                    .style("transform", "translate(-50%, -100%)") // Center horizontally and move up
                     .classed("show", true);
             })
-            .on('mousemove', function (event) {
-                tooltip
-                    .style("left", (event.pageX + 15) + "px")
-                    .style("top", (event.pageY - 15) + "px");
-            })
+            // Remove mousemove handler since we are fixing it to the node
+            .on('mousemove', null)
             .on('mouseout', function () {
                 // Reset Visuals
                 svg.classed('tree-dimmed', false);

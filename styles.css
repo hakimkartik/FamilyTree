@@ -338,13 +338,13 @@ header h1 {
 }
 
 .node.male circle {
-    filter: drop-shadow(0 5px 10px rgba(76, 175, 80, 0.3));
-    /* Green shadow */
+    filter: drop-shadow(0 5px 10px rgba(3, 155, 229, 0.3));
+    /* Blue shadow */
 }
 
 .node.female circle {
-    filter: drop-shadow(0 5px 10px rgba(139, 195, 74, 0.3));
-    /* Light Green shadow */
+    filter: drop-shadow(0 5px 10px rgba(233, 30, 99, 0.3));
+    /* Pink shadow */
 }
 
 .node.other circle {
