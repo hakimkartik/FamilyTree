@@ -1,50 +1,38 @@
-# Family Tree Visualization
+# Hakim-Sapru Family Tree
 
-An interactive web application to visualize your family tree with Kartik at the center.
-
-## Setup
-
-1. Make sure all files are in the same directory:
-   - `index.html`
-   - `styles.css`
-   - `tree-visualization.js`
-   - `family1.json`
-
-2. Start a local web server (required because of CORS restrictions when loading JSON):
-
-   **Option 1: Python 3**
-   ```bash
-   python3 -m http.server 8000
-   ```
-
-   **Option 2: Python 2**
-   ```bash
-   python -m SimpleHTTPServer 8000
-   ```
-
-   **Option 3: Node.js (if you have http-server installed)**
-   ```bash
-   npx http-server -p 8000
-   ```
-
-3. Open your browser and navigate to:
-   ```
-   http://localhost:8000
-   ```
+An interactive, web-based family tree visualization tool.
 
 ## Features
+- **Interactive Visualization**: Zoom, pan, and explore generations.
+- **Rich Details**: Hover for "cloud" tooltips with age, aliases, and connection highlighting.
+- **Editing**: Add new family members and relationships directly in the browser.
+- **Theming**: Toggle between Light/Dark modes with a nature-inspired design.
+- **Export**: Generate high-quality PNG images of your tree.
 
-- **Centered View**: Kartik is displayed at the center of the tree
-- **Interactive**: Click on any person to see their details
-- **Color-coded**: 
-  - Blue circles for males
-  - Pink circles for females
+## Usage
+
+### Local Development (Recommended)
+To enable saving changes to the JSON file:
+1. Run the local server:
+   ```bash
+   python3 server.py
+   ```
+2. Open [http://localhost:8000](http://localhost:8000).
+
+### Static Hosting (e.g., GitHub Pages)
+- **Viewing**: Works perfectly.
+- **Editing**: Changes are saved in memory but **cannot** normally persist to the file.
+- **Saving**: Use the "Download Updated JSON" button in the Edit panel to save your changes manually, then commit the file to your repository.
+
+## Technologies
+- D3.js (Visualization)
+- Vanilla JS (Logic)
+- CSS3 (Styling & Animations)
+- Python (Local Server)
   - Gold highlight for the root person (Kartik)
 - **Zoom & Pan**: Use mouse wheel to zoom, drag to pan
 - **Relationship Lines**:
   - Green lines for parent-child relationships
-  - Red dashed lines for spouse relationships
-
 ## Next Steps
 
 The edit mode button is currently disabled. This will be implemented in the next phase to allow adding new people and relationships.

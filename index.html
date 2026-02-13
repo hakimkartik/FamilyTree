@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hakim-Sapru Family Tree</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 
@@ -214,10 +214,16 @@
 
                 <div class="edit-section">
                     <h2>Save Changes</h2>
-                    <p class="info-text">Your changes are saved in memory. Download the updated JSON file to save
-                        permanently.</p>
-                    <button id="download-json-btn" class="btn btn-success">Download Updated JSON</button>
-                    <button id="reload-data-btn" class="btn btn-secondary">Reload Original Data</button>
+                    <p class="info-text">
+                        <strong>Save to File:</strong> Overwrites <code>family1.json</code> on the server (requires
+                        <code>python3 server.py</code>).<br>
+                        <strong>Download JSON:</strong> Saves a copy to your computer.
+                    </p>
+                    <div class="save-controls">
+                        <button id="save-server-btn" class="btn btn-primary">Save to File (Server)</button>
+                        <button id="download-json-btn" class="btn btn-secondary">Download JSON</button>
+                        <button id="reload-data-btn" class="btn btn-danger">Reload Original Data</button>
+                    </div>
                 </div>
             </div>
         </div>

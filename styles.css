@@ -43,19 +43,20 @@
 
 [data-theme="dark"] {
     /* Nature Theme - Dark (Night Forest) */
-    --bg-primary: linear-gradient(135deg, #1b262c 0%, #0f4c75 100%);
+    --bg-primary: radial-gradient(circle at center, #1a2332 0%, #0f172a 100%);
     /* Deep Blue Night */
-    --bg-secondary: rgba(20, 30, 40, 0.85);
-    --bg-tertiary: rgba(30, 40, 50, 0.6);
-    --text-primary: #ffffff;
-    --text-secondary: #b0bec5;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
     --text-inverse: #ffffff;
-    --border-color: rgba(255, 255, 255, 0.2);
+    --border-color: #334155;
 
     /* Shadows & Glows */
     --shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.5);
-    --shadow-light: 0 6px 15px -2px rgba(0, 0, 0, 0.3);
-    --node-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    --shadow-light: rgba(0, 0, 0, 0.3);
+    --node-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+    /* Blue glow */
 
     /* Node Colors - bioluminescent feel */
     --node-male: #00e676;
@@ -67,8 +68,9 @@
     --link-parent-child: #d7ccc8;
     --link-spouse: #efebe9;
 
-    --accent-color: #76ff03;
-    --accent-hover: #64dd17;
+    --accent-color: #38bdf8;
+    /* Light Blue */
+    --accent-hover: #0ea5e9;
     --success-bg: #1b5e20;
     --success-text: #b9f6ca;
     --error-bg: #b71c1c;
@@ -256,8 +258,7 @@ header h1 {
     animation-delay: 0.8s;
 }
 
-cursor: grab;
-}
+
 
 #tree-container:active {
     cursor: grabbing;
@@ -645,6 +646,22 @@ cursor: grab;
 
 .relationship-form.hidden {
     display: none;
+}
+
+.save-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
 }
 
 .info-text {

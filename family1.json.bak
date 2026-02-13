@@ -4,7 +4,7 @@
     "rootPersonId": "kartik",
     "notes": "",
     "created": "2026-02-11T16:18:12.968944",
-    "modified": "2026-02-12T04:23:27.188Z"
+    "modified": "2026-02-12T16:48:45.547Z"
   },
   "people": [
     {
@@ -197,7 +197,9 @@
       "id": "bhoomi_sapru",
       "name": "Bhoomi Sapru",
       "gender": "F",
-      "aliases": [],
+      "aliases": [
+        "Khushi"
+      ],
       "birthYear": null,
       "deathYear": null,
       "notes": null

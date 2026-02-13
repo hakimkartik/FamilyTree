@@ -51,13 +51,71 @@ function initEditMode() {
     });
 
     // Form submissions
-    document.getElementById('add-person-form').addEventListener('submit', handleAddPerson);
-    document.getElementById('add-parent-child-form').addEventListener('submit', handleAddParentChild);
-    document.getElementById('add-spouse-form').addEventListener('submit', handleAddSpouse);
+    const editBtn = document.getElementById('edit-mode');
+    if (editBtn) {
+        editBtn.addEventListener('click', toggleEditMode);
+    }
 
-    // Download and reload buttons
-    document.getElementById('download-json-btn').addEventListener('click', downloadJSON);
-    document.getElementById('reload-data-btn').addEventListener('click', reloadOriginalData);
+    // Forms
+    const addParentChildForm = document.getElementById('add-parent-child-form');
+    if (addParentChildForm) {
+        addParentChildForm.addEventListener('submit', handleAddParentChild);
+    }
+
+    const addSpouseForm = document.getElementById('add-spouse-form');
+    if (addSpouseForm) {
+        addSpouseForm.addEventListener('submit', handleAddSpouse);
+    }
+
+    const addPersonForm = document.getElementById('add-person-form');
+    if (addPersonForm) {
+        addPersonForm.addEventListener('submit', handleAddPerson); // Ensure this handler exists or was added
+    }
+
+    const editPersonForm = document.getElementById('edit-person-form');
+    if (editPersonForm) {
+        editPersonForm.addEventListener('submit', handleUpdatePerson); // Changed to handleUpdatePerson as per existing code
+    }
+
+    // Save Buttons
+    const saveServerBtn = document.getElementById('save-server-btn');
+    if (saveServerBtn) {
+        saveServerBtn.addEventListener('click', saveToServer);
+    }
+
+    const downloadJsonBtn = document.getElementById('download-json-btn');
+    if (downloadJsonBtn) {
+        downloadJsonBtn.addEventListener('click', downloadJSON);
+    }
+
+    const reloadBtn = document.getElementById('reload-data-btn');
+    if (reloadBtn) {
+        reloadBtn.addEventListener('click', reloadOriginalData);
+    }
+
+    // Tabs
+    const tabs = document.querySelectorAll('.tab-btn');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const target = tab.dataset.tab;
+            document.querySelectorAll('.edit-form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            // Assuming sections are named like 'parent-child-section', 'spouse-section', etc.
+            const targetSection = document.getElementById(target + '-section');
+            if (targetSection) {
+                targetSection.classList.add('active');
+            } else {
+                // Fallback for existing forms if sections are not defined
+                document.getElementById('add-parent-child-form').classList.toggle('hidden', target !== 'parent-child');
+                document.getElementById('add-spouse-form').classList.toggle('hidden', target !== 'spouse');
+                document.getElementById('add-person-form').classList.toggle('hidden', target !== 'add-person'); // Assuming an 'add-person' tab
+                document.getElementById('edit-person-form').classList.toggle('hidden', target !== 'edit-person'); // Assuming an 'edit-person' tab
+            }
+        });
+    });
 
     // Auto-generate ID from name
     document.getElementById('person-name-input').addEventListener('input', (e) => {
@@ -557,14 +615,16 @@ function showMessageInElement(element, message, type) {
     }, 5000);
 }
 
-// Download updated JSON (now Save to Server)
-async function downloadJSON() {
+
+// Save to Server (POST request)
+async function saveToServer() {
     if (!treeData) {
         alert('No data to save!');
         return;
     }
 
     const saveSection = document.querySelector('.edit-section:last-child');
+    const msgContainer = saveSection || document.body;
 
     try {
         const response = await fetch('/save', {
@@ -572,19 +632,35 @@ async function downloadJSON() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(treeData)
+            body: JSON.stringify(treeData, null, 2) // Pretty print
         });
 
         if (response.ok) {
-            showMessageInElement(saveSection, '✅ Saved to family1.json successfully!', 'success');
+            showMessageInElement(msgContainer, '✅ Saved to family1.json successfully!', 'success');
         } else {
             const err = await response.json();
             throw new Error(err.message || 'Unknown server error');
         }
     } catch (error) {
         console.error("Save failed:", error);
-        showMessageInElement(saveSection, `❌ Save Failed: ${error.message}. Make sure server.py is running!`, 'error');
+        showMessageInElement(msgContainer, `❌ Save Failed: ${error.message}. Make sure server.py is running!`, 'error');
     }
+}
+
+// Download JSON (Client-side)
+function downloadJSON() {
+    if (!treeData) {
+        alert('No data to download!');
+        return;
+    }
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(treeData, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "family1.json");
+    document.body.appendChild(downloadAnchorNode); // Required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
 }
 
 // Reload original data
