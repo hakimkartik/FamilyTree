@@ -128,7 +128,8 @@ function initAutocomplete(inputId, hiddenId, suggestionsId, onSelect) {
 
 // Initialize all autocomplete fields
 function initAllAutocompletes() {
-    initAutocomplete('parent-search', 'parent-select', 'parent-suggestions');
+    initAutocomplete('father-search', 'father-select', 'father-suggestions');
+    initAutocomplete('mother-search', 'mother-select', 'mother-suggestions');
     initAutocomplete('child-search', 'child-select', 'child-suggestions');
     initAutocomplete('spouse1-search', 'spouse1-select', 'spouse1-suggestions');
     initAutocomplete('spouse2-search', 'spouse2-select', 'spouse2-suggestions');

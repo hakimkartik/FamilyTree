@@ -175,6 +175,20 @@ function initEditMode() {
             document.getElementById('edit-search-select').value = '';
         });
     }
+
+    // Handle Delete Button
+    const deleteBtn = document.getElementById('delete-person-btn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            const personId = document.getElementById('edit-person-id').value;
+            if (personId && confirm(`Are you sure you want to delete this person? This action cannot be undone.`)) {
+                handleDeletePerson(personId);
+                document.getElementById('edit-person-form').classList.add('hidden');
+                document.getElementById('edit-search-input').value = '';
+                document.getElementById('edit-search-select').value = '';
+            }
+        });
+    }
 }
 
 // Load Person Data into Edit Form
@@ -380,7 +394,7 @@ function handleAddPerson(e) {
 function wouldCreateCycle(parentId, childId) {
     // Build a map of all parent-child relationships
     const parentMap = {};
-    relationships.forEach(rel => {
+    treeData.relationships.forEach(rel => {
         if (rel.type === 'parentChild') {
             if (!parentMap[rel.childId]) parentMap[rel.childId] = [];
             parentMap[rel.childId].push(rel.parentId);
@@ -404,99 +418,173 @@ function wouldCreateCycle(parentId, childId) {
 function handleAddParentChild(e) {
     e.preventDefault();
 
-    const parentId = document.getElementById('parent-select').value;
+    const fatherId = document.getElementById('father-select').value;
+    const motherId = document.getElementById('mother-select').value;
     const childId = document.getElementById('child-select').value;
 
-    if (!parentId || !childId) {
-        showMessage('add-parent-child-form', 'Please select both parent and child.', 'error');
+    // At least one parent is required
+    if ((!fatherId && !motherId) || !childId) {
+        showMessage('add-parent-child-form', 'Please select at least one parent and a child.', 'error');
         return;
     }
 
-    if (parentId === childId) {
-        showMessage('add-parent-child-form', 'Parent and child cannot be the same person.', 'error');
+    if ((fatherId === childId) || (motherId === childId)) {
+        showMessage('add-parent-child-form', 'A parent cannot be the same as the child.', 'error');
         return;
     }
 
-    // Check for cycles
-    if (wouldCreateCycle(parentId, childId)) {
-        const parentName = peopleMap[parentId].name;
-        const childName = peopleMap[childId].name;
-        const confirmMsg = `Warning: ${childName} is already an ancestor of ${parentName}. Creating this relationship would create a cycle. Do you want to proceed?`;
-        if (!confirm(confirmMsg)) {
-            return;
+    if (fatherId === motherId && fatherId) {
+        showMessage('add-parent-child-form', 'Father and mother cannot be the same person.', 'error');
+        return;
+    }
+
+    // Process each parent-child relationship
+    const relationshipsToAdd = [];
+    
+    if (fatherId) {
+        // Check for cycles with father
+        if (wouldCreateCycle(fatherId, childId)) {
+            const fatherName = peopleMap[fatherId].name;
+            const childName = peopleMap[childId].name;
+            const confirmMsg = `Warning: ${childName} is already an ancestor of ${fatherName}. Creating this relationship would create a cycle. Do you want to proceed?`;
+            if (!confirm(confirmMsg)) {
+                return;
+            }
         }
+
+        // Check if father-child relationship already exists
+        const existingFatherChildIndex = relationships.findIndex(rel =>
+            rel.type === 'parentChild' &&
+            rel.parentId === fatherId &&
+            rel.childId === childId
+        );
+
+        if (existingFatherChildIndex >= 0) {
+            const fatherName = peopleMap[fatherId].name;
+            const childName = peopleMap[childId].name;
+            const existingRel = relationships[existingFatherChildIndex];
+            const confirmMsg = `A relationship between ${fatherName} and ${childName} already exists.\n\n` +
+                `Current: Biological=${existingRel.biological}, Notes=${existingRel.notes || 'None'}\n` +
+                `New: Biological=${document.getElementById('biological-relation').checked}, Notes=${document.getElementById('parent-child-notes').value.trim() || 'None'}\n\n` +
+                `Do you want to update this relationship?`;
+
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+        }
+
+        relationshipsToAdd.push({
+            parentId: fatherId,
+            childId: childId
+        });
     }
 
-    // Check if relationship already exists
-    const existingIndex = relationships.findIndex(rel =>
-        rel.type === 'parentChild' &&
-        rel.parentId === parentId &&
-        rel.childId === childId
-    );
+    if (motherId) {
+        // Check for cycles with mother
+        if (wouldCreateCycle(motherId, childId)) {
+            const motherName = peopleMap[motherId].name;
+            const childName = peopleMap[childId].name;
+            const confirmMsg = `Warning: ${childName} is already an ancestor of ${motherName}. Creating this relationship would create a cycle. Do you want to proceed?`;
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+        }
 
-    let relationship;
+        // Check if mother-child relationship already exists
+        const existingMotherChildIndex = relationships.findIndex(rel =>
+            rel.type === 'parentChild' &&
+            rel.parentId === motherId &&
+            rel.childId === childId
+        );
+
+        if (existingMotherChildIndex >= 0) {
+            const motherName = peopleMap[motherId].name;
+            const childName = peopleMap[childId].name;
+            const existingRel = relationships[existingMotherChildIndex];
+            const confirmMsg = `A relationship between ${motherName} and ${childName} already exists.\n\n` +
+                `Current: Biological=${existingRel.biological}, Notes=${existingRel.notes || 'None'}\n` +
+                `New: Biological=${document.getElementById('biological-relation').checked}, Notes=${document.getElementById('parent-child-notes').value.trim() || 'None'}\n\n` +
+                `Do you want to update this relationship?`;
+
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+        }
+
+        relationshipsToAdd.push({
+            parentId: motherId,
+            childId: childId
+        });
+    }
+
+    // Add all relationships
     const biological = document.getElementById('biological-relation').checked;
     const notes = document.getElementById('parent-child-notes').value.trim() || null;
 
-    if (existingIndex >= 0) {
-        // Relationship exists - ask for confirmation to update
-        const parentName = peopleMap[parentId].name;
-        const childName = peopleMap[childId].name;
-        const existingRel = relationships[existingIndex];
-        const confirmMsg = `A relationship between ${parentName} and ${childId} already exists.\n\n` +
-            `Current: Biological=${existingRel.biological}, Notes=${existingRel.notes || 'None'}\n` +
-            `New: Biological=${biological}, Notes=${notes || 'None'}\n\n` +
-            `Do you want to update this relationship?`;
-
-        if (!confirm(confirmMsg)) {
-            return;
-        }
-
-        // Update existing relationship
-        relationship = relationships[existingIndex];
-        relationship.biological = biological;
-        relationship.notes = notes;
-
-        // Update in treeData
-        const treeDataIndex = treeData.relationships.findIndex(rel =>
+    let addedCount = 0;
+    relationshipsToAdd.forEach(parentChild => {
+        const existingIndex = relationships.findIndex(rel =>
             rel.type === 'parentChild' &&
-            rel.parentId === parentId &&
-            rel.childId === childId
+            rel.parentId === parentChild.parentId &&
+            rel.childId === parentChild.childId
         );
-        if (treeDataIndex >= 0) {
-            treeData.relationships[treeDataIndex] = relationship;
-        }
-    } else {
-        // Create new relationship
-        relationship = {
-            type: 'parentChild',
-            parentId: parentId,
-            childId: childId,
-            biological: biological,
-            notes: notes
-        };
 
-        relationships.push(relationship);
-        treeData.relationships.push(relationship);
-    }
+        if (existingIndex >= 0) {
+            // Update existing relationship
+            const relationship = relationships[existingIndex];
+            relationship.biological = biological;
+            relationship.notes = notes;
+
+            // Update in treeData
+            const treeDataIndex = treeData.relationships.findIndex(rel =>
+                rel.type === 'parentChild' &&
+                rel.parentId === parentChild.parentId &&
+                rel.childId === parentChild.childId
+            );
+            if (treeDataIndex >= 0) {
+                treeData.relationships[treeDataIndex] = relationship;
+            }
+        } else {
+            // Create new relationship
+            const relationship = {
+                type: 'parentChild',
+                parentId: parentChild.parentId,
+                childId: parentChild.childId,
+                biological: biological,
+                notes: notes
+            };
+
+            relationships.push(relationship);
+            treeData.relationships.push(relationship);
+            addedCount++;
+        }
+    });
 
     treeData.meta.modified = new Date().toISOString();
 
     // Reset form
     document.getElementById('add-parent-child-form').reset();
     document.getElementById('biological-relation').checked = true;
-    document.getElementById('parent-search').value = '';
+    document.getElementById('father-search').value = '';
+    document.getElementById('mother-search').value = '';
     document.getElementById('child-search').value = '';
-    document.getElementById('parent-select').value = '';
+    document.getElementById('father-select').value = '';
+    document.getElementById('mother-select').value = '';
     document.getElementById('child-select').value = '';
 
     // Re-render tree (preserving collapsed state)
     renderTree();
 
-    const parentName = peopleMap[parentId].name;
+    // Show success message
+    const fatherName = fatherId ? peopleMap[fatherId].name : 'Unknown';
+    const motherName = motherId ? peopleMap[motherId].name : 'Unknown';
     const childName = peopleMap[childId].name;
-    const action = existingIndex >= 0 ? 'updated' : 'added';
-    showMessage('add-parent-child-form', `Successfully ${action} relationship: ${parentName} → ${childName}`, 'success');
+    
+    let message = `Successfully added relationship(s): `;
+    if (fatherId) message += `${fatherName} → ${childName} `;
+    if (motherId) message += `${motherName} → ${childName}`;
+    
+    showMessage('add-parent-child-form', message, 'success');
 }
 
 // Handle add spouse relationship
@@ -709,6 +797,104 @@ function reloadOriginalData() {
         const saveSection = document.querySelector('.edit-section:last-child');
         showMessageInElement(saveSection, 'Original data reloaded successfully!', 'success');
     }
+}
+
+// Safe delete person function
+function handleDeletePerson(personId) {
+    const person = peopleMap[personId];
+    if (!person) {
+        alert('Person not found!');
+        return false;
+    }
+
+    // Find all relationships involving this person
+    const relatedRelationships = treeData.relationships.filter(rel => {
+        if (rel.type === 'parentChild') {
+            return rel.parentId === personId || rel.childId === personId;
+        } else if (rel.type === 'spouse') {
+            return rel.people.includes(personId);
+        }
+        return false;
+    });
+
+    // Show warning about relationships that will be deleted
+    if (relatedRelationships.length > 0) {
+        const relationshipNames = relatedRelationships.map(rel => {
+            if (rel.type === 'parentChild') {
+                const parentName = peopleMap[rel.parentId].name;
+                const childName = peopleMap[rel.childId].name;
+                return `${parentName} → ${childName} (${rel.biological ? 'Biological' : 'Non-Biological'})`;
+            } else if (rel.type === 'spouse') {
+                const spouse1Name = peopleMap[rel.people[0]].name;
+                const spouse2Name = peopleMap[rel.people[1]].name;
+                return `${spouse1Name} ↔ ${spouse2Name}`;
+            }
+        }).join('\n');
+
+        const confirmMsg = `Warning: Deleting ${person.name} will also delete the following relationships:\n\n${relationshipNames}\n\nDo you want to proceed?`;
+        if (!confirm(confirmMsg)) {
+            return false;
+        }
+    }
+
+    // Check if this person is the root person
+    if (treeData.meta.rootPersonId === personId) {
+        const confirmRoot = `Warning: ${person.name} is the root person of the tree. Deleting them will require selecting a new root person.\n\nDo you want to proceed?`;
+        if (!confirm(confirmRoot)) {
+            return false;
+        }
+    }
+
+    // Ask for confirmation
+    const finalConfirm = `Are you sure you want to permanently delete ${person.name}? This action cannot be undone.`;
+    if (!confirm(finalConfirm)) {
+        return false;
+    }
+
+    // Remove all relationships involving this person
+    for (let i = treeData.relationships.length - 1; i >= 0; i--) {
+        const rel = treeData.relationships[i];
+        if (rel.type === 'parentChild') {
+            if (rel.parentId === personId || rel.childId === personId) {
+                treeData.relationships.splice(i, 1);
+            }
+        } else if (rel.type === 'spouse') {
+            if (rel.people.includes(personId)) {
+                treeData.relationships.splice(i, 1);
+            }
+        }
+    }
+
+    // Remove the person from the people array
+    treeData.people = treeData.people.filter(p => p.id !== personId);
+    
+    // Remove from peopleMap
+    delete peopleMap[personId];
+
+    // If this was the root person, select a new root (first remaining person)
+    if (treeData.meta.rootPersonId === personId) {
+        if (treeData.people.length > 0) {
+            treeData.meta.rootPersonId = treeData.people[0].id;
+        } else {
+            treeData.meta.rootPersonId = null;
+        }
+    }
+
+    // Update modification time
+    treeData.meta.modified = new Date().toISOString();
+
+    // Re-render tree
+    renderTree();
+
+    // Show success message
+    showMessageInElement(document.body, `Successfully deleted ${person.name} and all related relationships.`, 'success');
+    
+    // Update autocomplete fields
+    if (typeof initAllAutocompletes === 'function') {
+        initAllAutocompletes();
+    }
+    
+    return true;
 }
 
 // Initialize edit mode when tree data is loaded
