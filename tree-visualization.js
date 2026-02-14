@@ -4,6 +4,8 @@ let peopleMap = {};
 let relationships = [];
 let rootPersonId = null;
 let collapsedNodes = new Set(); // Track which nodes are collapsed
+let showExtendedFamily = true; // Toggle for extended family view
+let directDescendantsOf = null; // Track which person's direct descendants to show
 
 // SVG dimensions
 const width = 1600;
@@ -111,98 +113,287 @@ function buildTreeStructure() {
         }
     });
 
-    // Build node structure - separate function for upward (ancestors) and downward (descendants)
-    function buildNodeDown(personId, visited = new Set(), level = 0) {
-        if (visited.has(personId)) return null;
-        visited.add(personId);
+    // If we're showing direct descendants of a specific person, build a focused tree
+    if (!showExtendedFamily && directDescendantsOf) {
+        // Build a tree focused on the selected person's descendants
+        function buildDirectDescendantsTree(personId, visited = new Set(), level = 0) {
+            if (visited.has(personId)) return null;
+            visited.add(personId);
 
-        const person = peopleMap[personId];
-        if (!person) return null;
+            const person = peopleMap[personId];
+            if (!person) return null;
 
-        const node = {
-            id: personId,
-            name: person.name,
-            gender: person.gender,
-            aliases: person.aliases || [],
-            birthYear: person.birthYear,
-            deathYear: person.deathYear,
-            notes: person.notes,
-            level: level,
+            const node = {
+                id: personId,
+                name: person.name,
+                gender: person.gender,
+                aliases: person.aliases || [],
+                birthYear: person.birthYear,
+                deathYear: person.deathYear,
+                notes: person.notes,
+                level: level,
+                children: [],
+                spouses: [] // Include spouses for context
+            };
+
+            // Add children (going downward)
+            if (children[personId]) {
+                children[personId].forEach(childId => {
+                    const childNode = buildDirectDescendantsTree(childId, visited, level + 1);
+                    if (childNode) node.children.push(childNode);
+                });
+            }
+
+            // Add spouses for the current person
+            if (spouses[personId]) {
+                spouses[personId].forEach(spouseId => {
+                    if (!visited.has(spouseId)) {
+                        const spouse = peopleMap[spouseId];
+                        if (spouse) {
+                            node.spouses.push({
+                                id: spouseId,
+                                name: spouse.name,
+                                gender: spouse.gender,
+                                aliases: spouse.aliases || [],
+                                birthYear: spouse.birthYear,
+                                deathYear: spouse.deathYear,
+                                notes: spouse.notes,
+                                level: level
+                            });
+                        }
+                    }
+                });
+            }
+
+            return node;
+        }
+
+        // Start building from the selected person
+        const selectedPerson = peopleMap[directDescendantsOf];
+        if (!selectedPerson) {
+            console.error('Selected person not found:', directDescendantsOf);
+            return null;
+        }
+
+        const root = {
+            id: selectedPerson.id,
+            name: selectedPerson.name,
+            gender: selectedPerson.gender,
+            aliases: selectedPerson.aliases || [],
+            birthYear: selectedPerson.birthYear,
+            deathYear: selectedPerson.deathYear,
+            notes: selectedPerson.notes,
+            level: 0,
             children: [],
             spouses: []
         };
 
-        // Add children (going downward)
-        if (children[personId]) {
-            children[personId].forEach(childId => {
-                const childNode = buildNodeDown(childId, visited, level + 1);
-                if (childNode) node.children.push(childNode);
+        // Build the descendants tree starting from the selected person
+        const visited = new Set([directDescendantsOf]);
+        if (children[directDescendantsOf]) {
+            children[directDescendantsOf].forEach(childId => {
+                const childNode = buildDirectDescendantsTree(childId, visited, 1);
+                if (childNode) root.children.push(childNode);
             });
         }
 
-        // Add spouses at same level
-        if (spouses[personId]) {
-            spouses[personId].forEach(spouseId => {
-                if (!visited.has(spouseId)) {
-                    const spouse = peopleMap[spouseId];
-                    if (spouse) {
-                        node.spouses.push({
-                            id: spouseId,
-                            name: spouse.name,
-                            gender: spouse.gender,
-                            aliases: spouse.aliases || [],
-                            birthYear: spouse.birthYear,
-                            deathYear: spouse.deathYear,
-                            notes: spouse.notes,
-                            level: level
-                        });
-                    }
+        // Add spouses for the root person
+        if (spouses[directDescendantsOf]) {
+            spouses[directDescendantsOf].forEach(spouseId => {
+                const spouse = peopleMap[spouseId];
+                if (spouse && !visited.has(spouseId)) {
+                    root.spouses.push({
+                        id: spouseId,
+                        name: spouse.name,
+                        gender: spouse.gender,
+                        aliases: spouse.aliases || [],
+                        birthYear: spouse.birthYear,
+                        deathYear: spouse.deathYear,
+                        notes: spouse.notes,
+                        level: 0
+                    });
                 }
             });
         }
 
-        return node;
-    }
+        return root;
+    } else {
+        // Build the full tree structure as before (for extended family view)
+        
+        // Build node structure - separate function for upward (ancestors) and downward (descendants)
+        function buildNodeDown(personId, visited = new Set(), level = 0) {
+            if (visited.has(personId)) return null;
+            visited.add(personId);
 
-    function buildNodeUp(personId, visited = new Set(), level = 0, excludeChildId = null) {
-        if (visited.has(personId)) return null;
-        visited.add(personId);
+            const person = peopleMap[personId];
+            if (!person) return null;
 
-        const person = peopleMap[personId];
-        if (!person) return null;
+            const node = {
+                id: personId,
+                name: person.name,
+                gender: person.gender,
+                aliases: person.aliases || [],
+                birthYear: person.birthYear,
+                deathYear: person.deathYear,
+                notes: person.notes,
+                level: level,
+                children: [],
+                spouses: []
+            };
 
-        const node = {
-            id: personId,
-            name: person.name,
-            gender: person.gender,
-            aliases: person.aliases || [],
-            birthYear: person.birthYear,
-            deathYear: person.deathYear,
-            notes: person.notes,
-            level: level,
+            // Add children (going downward)
+            if (children[personId]) {
+                children[personId].forEach(childId => {
+                    const childNode = buildNodeDown(childId, visited, level + 1);
+                    if (childNode) node.children.push(childNode);
+                });
+            }
+
+            // Add spouses at same level
+            if (spouses[personId]) {
+                spouses[personId].forEach(spouseId => {
+                    if (!visited.has(spouseId)) {
+                        const spouse = peopleMap[spouseId];
+                        if (spouse) {
+                            node.spouses.push({
+                                id: spouseId,
+                                name: spouse.name,
+                                gender: spouse.gender,
+                                aliases: spouse.aliases || [],
+                                birthYear: spouse.birthYear,
+                                deathYear: spouse.deathYear,
+                                notes: spouse.notes,
+                                level: level
+                            });
+                        }
+                    }
+                });
+            }
+
+            return node;
+        }
+
+        function buildNodeUp(personId, visited = new Set(), level = 0, excludeChildId = null) {
+            if (visited.has(personId)) return null;
+            visited.add(personId);
+
+            const person = peopleMap[personId];
+            if (!person) return null;
+
+            const node = {
+                id: personId,
+                name: person.name,
+                gender: person.gender,
+                aliases: person.aliases || [],
+                birthYear: person.birthYear,
+                deathYear: person.deathYear,
+                notes: person.notes,
+                level: level,
+                children: [],
+                spouses: [],
+                siblings: []
+            };
+
+            // Add parents (going upward)
+            if (parents[personId]) {
+                parents[personId].forEach(parentId => {
+                    const parentNode = buildNodeUp(parentId, visited, level - 1, personId);
+                    if (parentNode) {
+                        if (!node.parents) node.parents = [];
+                        node.parents.push(parentNode);
+                    }
+                });
+            }
+
+            // Add siblings - all other children of the same parents
+            if (parents[personId]) {
+                const allSiblings = new Set();
+                parents[personId].forEach(parentId => {
+                    if (children[parentId]) {
+                        children[parentId].forEach(siblingId => {
+                            if (siblingId !== personId && siblingId !== excludeChildId && !visited.has(siblingId)) {
+                                allSiblings.add(siblingId);
+                            }
+                        });
+                    }
+                });
+
+                allSiblings.forEach(siblingId => {
+                    // Use buildNodeDown to fetch the full subtree for this sibling!
+                    // This ensures cousins and distant relatives are included.
+                    const siblingNode = buildNodeDown(siblingId, visited, level);
+                    if (siblingNode) {
+                        node.siblings.push(siblingNode);
+                    }
+                });
+            }
+
+            // Add spouses at same level
+            if (spouses[personId]) {
+                spouses[personId].forEach(spouseId => {
+                    if (!visited.has(spouseId)) {
+                        const spouse = peopleMap[spouseId];
+                        if (spouse) {
+                            node.spouses.push({
+                                id: spouseId,
+                                name: spouse.name,
+                                gender: spouse.gender,
+                                aliases: spouse.aliases || [],
+                                birthYear: spouse.birthYear,
+                                deathYear: spouse.deathYear,
+                                notes: spouse.notes,
+                                level: level
+                            });
+                        }
+                    }
+                });
+            }
+
+            return node;
+        }
+
+        // Build root node with both upward and downward expansion
+        const rootPerson = peopleMap[rootPersonId];
+        const root = {
+            id: rootPersonId,
+            name: rootPerson.name,
+            gender: rootPerson.gender,
+            aliases: rootPerson.aliases || [],
+            birthYear: rootPerson.birthYear,
+            deathYear: rootPerson.deathYear,
+            notes: rootPerson.notes,
+            level: 0,
             children: [],
             spouses: [],
+            parents: [],
             siblings: []
         };
 
-        // Add parents (going upward)
-        if (parents[personId]) {
-            parents[personId].forEach(parentId => {
-                const parentNode = buildNodeUp(parentId, visited, level - 1, personId);
-                if (parentNode) {
-                    if (!node.parents) node.parents = [];
-                    node.parents.push(parentNode);
-                }
+        // Build downward (children)
+        const visitedDown = new Set([rootPersonId]);
+        if (children[rootPersonId]) {
+            children[rootPersonId].forEach(childId => {
+                const childNode = buildNodeDown(childId, visitedDown, 1);
+                if (childNode) root.children.push(childNode);
             });
         }
 
-        // Add siblings - all other children of the same parents
-        if (parents[personId]) {
+        // Build upward (parents)
+        const visitedUp = new Set([rootPersonId]);
+        if (parents[rootPersonId]) {
+            parents[rootPersonId].forEach(parentId => {
+                const parentNode = buildNodeUp(parentId, visitedUp, -1, rootPersonId);
+                if (parentNode) root.parents.push(parentNode);
+            });
+        }
+
+        // Add siblings at root level
+        if (parents[rootPersonId]) {
             const allSiblings = new Set();
-            parents[personId].forEach(parentId => {
+            parents[rootPersonId].forEach(parentId => {
                 if (children[parentId]) {
                     children[parentId].forEach(siblingId => {
-                        if (siblingId !== personId && siblingId !== excludeChildId && !visited.has(siblingId)) {
+                        if (siblingId !== rootPersonId) {
                             allSiblings.add(siblingId);
                         }
                     });
@@ -210,124 +401,43 @@ function buildTreeStructure() {
             });
 
             allSiblings.forEach(siblingId => {
-                // Use buildNodeDown to fetch the full subtree for this sibling!
-                // This ensures cousins and distant relatives are included.
-                const siblingNode = buildNodeDown(siblingId, visited, level);
+                // Use buildNodeDown for root siblings too
+                // Note: visitedDown is used here to match the downward traversal context
+                // But we need to use a visited set that accounts for what we've seen.
+                // Actually, root.siblings are lateral.
+                // Let's use buildNodeDown but be careful about the visited set.
+                // Since buildNodeDown checks visited, we should pass the global visited set if we had one?
+                // Here we have visitedDown and visitedUp.
+                // Let's use visitedDown as they are effectively downward branches from the parent level.
+                const siblingNode = buildNodeDown(siblingId, visitedDown, 0);
                 if (siblingNode) {
-                    node.siblings.push(siblingNode);
+                    root.siblings.push(siblingNode);
                 }
             });
         }
 
-        // Add spouses at same level
-        if (spouses[personId]) {
-            spouses[personId].forEach(spouseId => {
-                if (!visited.has(spouseId)) {
-                    const spouse = peopleMap[spouseId];
-                    if (spouse) {
-                        node.spouses.push({
-                            id: spouseId,
-                            name: spouse.name,
-                            gender: spouse.gender,
-                            aliases: spouse.aliases || [],
-                            birthYear: spouse.birthYear,
-                            deathYear: spouse.deathYear,
-                            notes: spouse.notes,
-                            level: level
-                        });
-                    }
+        // Add spouses at root level
+        if (spouses[rootPersonId]) {
+            spouses[rootPersonId].forEach(spouseId => {
+                const spouse = peopleMap[spouseId];
+                if (spouse) {
+                    root.spouses.push({
+                        id: spouseId,
+                        name: spouse.name,
+                        gender: spouse.gender,
+                        aliases: spouse.aliases || [],
+                        birthYear: spouse.birthYear,
+                        deathYear: spouse.deathYear,
+                        notes: spouse.notes,
+                        level: 0,
+                        directDescendantsCount: countDirectDescendants(spouseId) // Add direct descendants count
+                    });
                 }
             });
         }
 
-        return node;
+        return root;
     }
-
-    // Build root node with both upward and downward expansion
-    const rootPerson = peopleMap[rootPersonId];
-    const root = {
-        id: rootPersonId,
-        name: rootPerson.name,
-        gender: rootPerson.gender,
-        aliases: rootPerson.aliases || [],
-        birthYear: rootPerson.birthYear,
-        deathYear: rootPerson.deathYear,
-        notes: rootPerson.notes,
-        level: 0,
-        children: [],
-        spouses: [],
-        parents: [],
-        siblings: []
-    };
-
-    // Build downward (children)
-    const visitedDown = new Set([rootPersonId]);
-    if (children[rootPersonId]) {
-        children[rootPersonId].forEach(childId => {
-            const childNode = buildNodeDown(childId, visitedDown, 1);
-            if (childNode) root.children.push(childNode);
-        });
-    }
-
-    // Build upward (parents)
-    const visitedUp = new Set([rootPersonId]);
-    if (parents[rootPersonId]) {
-        parents[rootPersonId].forEach(parentId => {
-            const parentNode = buildNodeUp(parentId, visitedUp, -1, rootPersonId);
-            if (parentNode) root.parents.push(parentNode);
-        });
-    }
-
-    // Add siblings at root level
-    if (parents[rootPersonId]) {
-        const allSiblings = new Set();
-        parents[rootPersonId].forEach(parentId => {
-            if (children[parentId]) {
-                children[parentId].forEach(siblingId => {
-                    if (siblingId !== rootPersonId) {
-                        allSiblings.add(siblingId);
-                    }
-                });
-            }
-        });
-
-        allSiblings.forEach(siblingId => {
-            // Use buildNodeDown for root siblings too
-            // Note: visitedDown is used here to match the downward traversal context
-            // But we need to use a visited set that accounts for what we've seen.
-            // Actually, root.siblings are lateral.
-            // Let's use buildNodeDown but be careful about the visited set.
-            // Since buildNodeDown checks visited, we should pass the global visited set if we had one?
-            // Here we have visitedDown and visitedUp.
-            // Let's use visitedDown as they are effectively downward branches from the parent level.
-            const siblingNode = buildNodeDown(siblingId, visitedDown, 0);
-            if (siblingNode) {
-                root.siblings.push(siblingNode);
-            }
-        });
-    }
-
-    // Add spouses at root level
-    if (spouses[rootPersonId]) {
-        spouses[rootPersonId].forEach(spouseId => {
-            const spouse = peopleMap[spouseId];
-            if (spouse) {
-                root.spouses.push({
-                    id: spouseId,
-                    name: spouse.name,
-                    gender: spouse.gender,
-                    aliases: spouse.aliases || [],
-                    birthYear: spouse.birthYear,
-                    deathYear: spouse.deathYear,
-                    notes: spouse.notes,
-                    level: 0,
-                    directDescendantsCount: countDirectDescendants(spouseId) // Add direct descendants count
-                });
-            }
-        });
-    }
-
-    return root;
 }
 
 // Calculate positions for nodes
@@ -335,6 +445,7 @@ function calculatePositions(root) {
     const positions = {};
     const nodesByLevel = {};
     const visited = new Set();
+    const generationMap = {}; // Map to store generation of each node
 
     // Build children map for quick lookup
     const childrenMap = {};
@@ -345,15 +456,16 @@ function calculatePositions(root) {
         }
     });
 
-    // First pass: collect nodes by level
-    function collectNodes(node, level = 0) {
+    // First pass: collect nodes by level and assign generations
+    function collectNodes(node, level = 0, generation = 0) {
         if (!node || visited.has(node.id)) return;
-        
+
         visited.add(node.id);
+        generationMap[node.id] = generation; // Store the generation of this node
 
         if (!nodesByLevel[level]) nodesByLevel[level] = [];
         if (!nodesByLevel[level].find(n => n.id === node.id)) {
-            nodesByLevel[level].push(node);
+            nodesByLevel[level].push({...node, generation}); // Add generation to the node object
         }
 
         // If this node is collapsed, don't process its children or descendants
@@ -361,87 +473,99 @@ function calculatePositions(root) {
             return;
         }
 
-        // Process spouses at same level
-        if (node.spouses && node.spouses.length > 0) {
-            node.spouses.forEach(spouse => {
-                if (!visited.has(spouse.id)) {
-                    if (!nodesByLevel[level]) nodesByLevel[level] = [];
-                    if (!nodesByLevel[level].find(n => n.id === spouse.id)) {
-                        nodesByLevel[level].push({
-                            id: spouse.id,
-                            name: spouse.name,
-                            gender: spouse.gender,
-                            aliases: spouse.aliases || [],
-                            birthYear: spouse.birthYear,
-                            deathYear: spouse.deathYear,
-                            notes: spouse.notes,
-                            level: level
-                        });
-                    }
-                }
-            });
-        }
-
-        // Process siblings at same level
-        if (node.siblings && node.siblings.length > 0) {
-            node.siblings.forEach(sibling => {
-                if (!visited.has(sibling.id)) {
-                    if (!nodesByLevel[level]) nodesByLevel[level] = [];
-                    if (!nodesByLevel[level].find(n => n.id === sibling.id)) {
-                        nodesByLevel[level].push({
-                            id: sibling.id,
-                            name: sibling.name,
-                            gender: sibling.gender,
-                            aliases: sibling.aliases || [],
-                            birthYear: sibling.birthYear,
-                            deathYear: sibling.deathYear,
-                            notes: sibling.notes,
-                            level: level
-                        });
-
-                        // Also add spouses of siblings at the same level
-                        const siblingSpouses = relationships
-                            .filter(rel => rel.type === 'spouse' &&
-                                (rel.people[0] === sibling.id || rel.people[1] === sibling.id))
-                            .map(rel => rel.people[0] === sibling.id ? rel.people[1] : rel.people[0]);
-
-                        siblingSpouses.forEach(spouseId => {
-                            if (!visited.has(spouseId) && peopleMap[spouseId]) {
-                                const spouse = peopleMap[spouseId];
-                                if (!nodesByLevel[level].find(n => n.id === spouseId)) {
-                                    nodesByLevel[level].push({
-                                        id: spouseId,
-                                        name: spouse.name,
-                                        gender: spouse.gender,
-                                        aliases: spouse.aliases || [],
-                                        birthYear: spouse.birthYear,
-                                        deathYear: spouse.deathYear,
-                                        notes: spouse.notes,
-                                        level: level
-                                    });
-                                }
-                            }
-                        });
-
-
-                        // Process children of siblings (nephews/nieces/cousins) using recursion
-                        // Only process if the sibling is not collapsed
-                        if (sibling.children && sibling.children.length > 0 && !collapsedNodes.has(sibling.id)) {
-                            sibling.children.forEach(child => collectNodes(child, level + 1));
+        // Conditionally process extended family relationships
+        if (showExtendedFamily) {
+            // Process spouses at same level (same generation)
+            if (node.spouses && node.spouses.length > 0) {
+                node.spouses.forEach(spouse => {
+                    if (!visited.has(spouse.id)) {
+                        if (!nodesByLevel[level]) nodesByLevel[level] = [];
+                        if (!nodesByLevel[level].find(n => n.id === spouse.id)) {
+                            nodesByLevel[level].push({
+                                id: spouse.id,
+                                name: spouse.name,
+                                gender: spouse.gender,
+                                aliases: spouse.aliases || [],
+                                birthYear: spouse.birthYear,
+                                deathYear: spouse.deathYear,
+                                notes: spouse.notes,
+                                level: level,
+                                generation: generation // Same generation as spouse
+                            });
+                            
+                            generationMap[spouse.id] = generation; // Store generation for spouse
                         }
                     }
-                }
-            });
+                });
+            }
+
+            // Process siblings at same level (same generation)
+            if (node.siblings && node.siblings.length > 0) {
+                node.siblings.forEach(sibling => {
+                    if (!visited.has(sibling.id)) {
+                        if (!nodesByLevel[level]) nodesByLevel[level] = [];
+                        if (!nodesByLevel[level].find(n => n.id === sibling.id)) {
+                            nodesByLevel[level].push({
+                                id: sibling.id,
+                                name: sibling.name,
+                                gender: sibling.gender,
+                                aliases: sibling.aliases || [],
+                                birthYear: sibling.birthYear,
+                                deathYear: sibling.deathYear,
+                                notes: sibling.notes,
+                                level: level,
+                                generation: generation // Same generation as sibling
+                            });
+                            
+                            generationMap[sibling.id] = generation; // Store generation for sibling
+
+                            // Also add spouses of siblings at the same level (same generation)
+                            const siblingSpouses = relationships
+                                .filter(rel => rel.type === 'spouse' &&
+                                    (rel.people[0] === sibling.id || rel.people[1] === sibling.id))
+                                .map(rel => rel.people[0] === sibling.id ? rel.people[1] : rel.people[0]);
+
+                            siblingSpouses.forEach(spouseId => {
+                                if (!visited.has(spouseId) && peopleMap[spouseId]) {
+                                    const spouse = peopleMap[spouseId];
+                                    if (!nodesByLevel[level].find(n => n.id === spouseId)) {
+                                        nodesByLevel[level].push({
+                                            id: spouseId,
+                                            name: spouse.name,
+                                            gender: spouse.gender,
+                                            aliases: spouse.aliases || [],
+                                            birthYear: spouse.birthYear,
+                                            deathYear: spouse.deathYear,
+                                            notes: spouse.notes,
+                                            level: level,
+                                            generation: generation // Same generation as spouse
+                                        });
+                                        
+                                        generationMap[spouseId] = generation; // Store generation for spouse
+                                    }
+                                }
+                            });
+
+
+                            // Process children of siblings (next generation) using recursion
+                            // Only process if the sibling is not collapsed
+                            if (sibling.children && sibling.children.length > 0 && !collapsedNodes.has(sibling.id)) {
+                                sibling.children.forEach(child => collectNodes(child, level + 1, generation + 1)); // Next generation
+                            }
+                        }
+                    }
+                });
+            }
         }
 
-        // Process children (downward) - only if the current node is not collapsed
+        // Process children (downward, next generation) - only if the current node is not collapsed
         if (node.children && node.children.length > 0) {
-            node.children.forEach(child => collectNodes(child, level + 1));
+            node.children.forEach(child => collectNodes(child, level + 1, generation + 1)); // Next generation
         }
 
-        // Process parents (upward)
+        // Process parents (upward, previous generation)
         if (node.parents && node.parents.length > 0) {
-            node.parents.forEach(parent => collectNodes(parent, level - 1));
+            node.parents.forEach(parent => collectNodes(parent, level - 1, generation - 1)); // Previous generation
         }
     }
 
@@ -466,11 +590,11 @@ function calculatePositions(root) {
 
         nodes.forEach((node, index) => {
             const x = startX + index * horizontalSpacing;
-            positions[node.id] = { x, y, node };
+            positions[node.id] = { x, y, node, generation: generationMap[node.id] };
         });
     });
 
-    return positions;
+    return { positions, generationMap };
 }
 
 // Render the tree
@@ -486,7 +610,7 @@ function renderTree() {
     }
 
     console.log('Tree structure built, calculating positions...');
-    const positions = calculatePositions(root);
+    const { positions, generationMap } = calculatePositions(root);
     console.log('Positions calculated:', Object.keys(positions).length, 'nodes');
 
     if (Object.keys(positions).length === 0) {
@@ -509,12 +633,12 @@ function renderTree() {
         .attr('width', '100%')
         .attr('height', '100%');
 
-    // Define Gradients - NATURE THEME
+    // Define Gradients - GENDER COLORS (replacing generation-based gradients)
     const defs = svg.append("defs");
 
-    // Male Gradient - Sky Blue
+    // Create gender-specific gradients
     const maleGradient = defs.append("linearGradient")
-        .attr("id", "maleGradient")
+        .attr("id", "male-gradient")
         .attr("x1", "0%")
         .attr("y1", "0%")
         .attr("x2", "100%")
@@ -522,9 +646,8 @@ function renderTree() {
     maleGradient.append("stop").attr("offset", "0%").attr("stop-color", "#4FC3F7"); // Light Blue
     maleGradient.append("stop").attr("offset", "100%").attr("stop-color", "#039BE5"); // Darker Blue
 
-    // Female Gradient - Pink
     const femaleGradient = defs.append("linearGradient")
-        .attr("id", "femaleGradient")
+        .attr("id", "female-gradient")
         .attr("x1", "0%")
         .attr("y1", "0%")
         .attr("x2", "100%")
@@ -532,16 +655,14 @@ function renderTree() {
     femaleGradient.append("stop").attr("offset", "0%").attr("stop-color", "#F48FB1"); // Light Pink
     femaleGradient.append("stop").attr("offset", "100%").attr("stop-color", "#E91E63"); // Darker Pink
 
-    // Other Gradient
     const otherGradient = defs.append("linearGradient")
-        .attr("id", "otherGradient")
+        .attr("id", "other-gradient")
         .attr("x1", "0%")
         .attr("y1", "0%")
         .attr("x2", "100%")
         .attr("y2", "100%");
-    otherGradient.append("stop").attr("offset", "0%").attr("stop-color", "#d4e157");
-    otherGradient.append("stop").attr("offset", "100%").attr("stop-color", "#c0ca33");
-
+    otherGradient.append("stop").attr("offset", "0%").attr("stop-color", "#d4e157"); // Light Yellow-Green
+    otherGradient.append("stop").attr("offset", "100%").attr("stop-color", "#c0ca33"); // Darker Yellow-Green
 
     // Create container group
     const g = svg.append('g');
@@ -555,22 +676,15 @@ function renderTree() {
             // Only draw the link if both parent and child are present in positions
             // and the parent is not collapsed (since if parent is collapsed, child won't be in positions)
             if (parent && child && !collapsedNodes.has(rel.parentId)) {
-                // Organic curve generator
-                const linkGen = d3.linkVertical()
-                    .x(d => d.x)
-                    .y(d => d.y);
-
-                const linkData = {
-                    source: { x: parent.x, y: parent.y + (nodeRadius * 0.5) }, // Start slightly below center
-                    target: { x: child.x, y: child.y - (nodeRadius * 0.5) }   // End slightly above center
-                };
+                // Create elbow connector path
+                const elbowLink = createElbowConnector(parent, child);
 
                 const path = g.append('path')
                     .attr('class', 'link parent-child-link')
                     .attr('data-parent', rel.parentId) // Add IDs for highlighting
                     .attr('data-child', rel.childId)
-                    .attr('d', linkGen(linkData))
-                    .attr('stroke', '#795548')
+                    .attr('d', elbowLink)
+                    .attr('stroke', 'var(--link-parent-child)')
                     .attr('stroke-width', 2)
                     .attr('fill', 'none')
                     .attr('stroke-dasharray', function () { return this.getTotalLength(); })
@@ -590,20 +704,15 @@ function renderTree() {
 
             // Only draw spouse link if both people are present in positions
             if (person1 && person2) {
-                // Draw curved line for spouses
-                const midX = (person1.x + person2.x) / 2;
-                const midY = Math.min(person1.y, person2.y) - 40; // Higher arc for more "bridge" look
-
-                const pathData = d3.path();
-                pathData.moveTo(person1.x, person1.y);
-                pathData.quadraticCurveTo(midX, midY, person2.x, person2.y);
+                // Create elbow connector for spouses (horizontal connection)
+                const elbowLink = createElbowConnector(person1, person2, true); // Horizontal flag for spouses
 
                 const path = g.append('path')
                     .attr('class', 'link spouse-link')
                     .attr('data-p1', p1) // Add IDs for highlighting
                     .attr('data-p2', p2)
-                    .attr('d', pathData.toString())
-                    .attr('stroke', '#a1887f')
+                    .attr('d', elbowLink)
+                    .attr('stroke', 'var(--link-spouse)')
                     .attr('fill', 'none')
                     .attr('stroke-dasharray', function () { return this.getTotalLength(); })
                     .attr('stroke-dashoffset', function () { return this.getTotalLength(); });
@@ -725,9 +834,9 @@ function renderTree() {
                 const scrollX = window.scrollX || window.pageXOffset;
                 const scrollY = window.scrollY || window.pageYOffset;
 
-                // Position: Center horizontally, Above the node
+                // Position: Center horizontally, Above the node (accounting for avatar height)
                 const tooltipX = scrollX + bounds.left + (bounds.width / 2);
-                const tooltipY = scrollY + bounds.top - 15; // 15px gap
+                const tooltipY = scrollY + bounds.top - 45; // Increased gap to account for avatar
 
                 tooltip.html(content)
                     .style("left", tooltipX + "px")
@@ -751,41 +860,107 @@ function renderTree() {
         const nodeContent = nodeGroup.append('g')
             .attr('class', 'node-content');
 
-        // Draw circle
+        // Determine generation for this node
+        const generation = positions[person.id]?.generation || 0;
+        
+        // Draw circle with gender-based color
         nodeContent.append('circle')
             .attr('r', isRoot ? nodeRadius + 10 : nodeRadius) // Slightly larger
-            .attr('fill', d => {
-                if (person.gender === 'M') return 'url(#maleGradient)';
-                if (person.gender === 'F') return 'url(#femaleGradient)';
-                return 'url(#otherGradient)';
+            .attr('fill', function() {
+                // Use gender-specific colors
+                if (person.gender === 'M') {
+                    return 'url(#male-gradient)';
+                } else if (person.gender === 'F') {
+                    return 'url(#female-gradient)';
+                } else {
+                    return 'url(#other-gradient)';
+                }
             })
             .attr('stroke', '#fff')
             .attr('stroke-width', 3)
             .attr('stroke-dasharray', collapsedNodes.has(person.id) ? '5,5' : 'none'); // Dashed border for collapsed nodes
 
-        // Draw label
-        const labelY = isRoot ? nodeRadius + 35 : nodeRadius + 25;
+        // Add +/- button for collapsible branches if node has children
+        const hasChildren = node.children && node.children.length > 0;
+        if (hasChildren) {
+            const buttonSize = 12;
+            const buttonGroup = nodeContent.append('g')
+                .attr('class', 'collapse-button')
+                .attr('transform', `translate(${nodeRadius - 5}, ${-(nodeRadius - 5)})`)
+                .style('cursor', 'pointer')
+                .on('click', function(event) {
+                    event.stopPropagation(); // Prevent triggering node click
+                    toggleNodeCollapse(person.id);
+                });
+
+            // Button background
+            buttonGroup.append('rect')
+                .attr('x', -buttonSize/2)
+                .attr('y', -buttonSize/2)
+                .attr('width', buttonSize)
+                .attr('height', buttonSize)
+                .attr('rx', 3)
+                .attr('fill', collapsedNodes.has(person.id) ? '#4CAF50' : '#FF5722') // Green for expand, red for collapse
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 1);
+
+            // Plus/minus symbol
+            buttonGroup.append('text')
+                .attr('text-anchor', 'middle')
+                .attr('dominant-baseline', 'middle')
+                .attr('font-size', '10px')
+                .attr('fill', 'white')
+                .text(collapsedNodes.has(person.id) ? '+' : '−'); // + for collapsed, - for expanded
+        }
+
+        // Create avatar container
+        const avatarGroup = nodeContent.append('g')
+            .attr('class', 'avatar-container')
+            .attr('transform', `translate(0, ${nodeRadius + 25})`); // Position below the node
+
+        // Create circular avatar background
+        avatarGroup.append('circle')
+            .attr('r', 15)
+            .attr('fill', '#f0f0f0')
+            .attr('stroke', '#ccc')
+            .attr('stroke-width', 1);
+
+        // Add initials inside the avatar
+        avatarGroup.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dominant-baseline', 'middle')
+            .attr('dy', 1)
+            .attr('font-size', '12px')
+            .attr('fill', '#666')
+            .text(person.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()); // First two initials
+
+        // Draw name label below avatar
+        const labelY = nodeRadius + 55; // Further down to accommodate avatar
         nodeContent.append('text')
             .attr('y', labelY)
+            .attr('text-anchor', 'middle')
             .text(person.name)
             .style('opacity', 0); // Start invisible
 
-        // Animate Node Entry
-        nodeGroup.transition()
-            .duration(800)
+        // Enhanced physics-based spring animation for node entry
+        nodeGroup
+            .attr('transform', `translate(${x}, ${y}) scale(0)`) // Start scaled down
+            .transition()
+            .duration(1000)
             .delay(index * 50 + 500) // Start after links begin
-            .ease(d3.easeBackOut)
+            .ease(d3.easeElasticOut.amplitude(1.2).period(0.8)) // Spring-like effect
             .attr('transform', `translate(${x}, ${y}) scale(1)`);
 
-        // Animate Text Entry
+        // Animate Text Entry with fade-in
         nodeGroup.select('text')
+            .style('opacity', 0) // Ensure it starts invisible
             .transition()
             .duration(800)
             .delay(index * 50 + 800)
             .style('opacity', 1);
     });
 
-    // Add zoom and pan functionality
+    // Add zoom and pan functionality with improved drag behavior
     const zoom = d3.zoom()
         .scaleExtent([0.1, 4]) // Allow wider zoom range (keeping original to maintain compatibility)
         .on('zoom', (event) => {
@@ -794,6 +969,7 @@ function renderTree() {
             updateZoomDisplay(event.transform.k);
         });
 
+    // Enable zoom and pan on the SVG container
     svg.call(zoom);
 
     // Center the tree initially - focus on Root
@@ -804,6 +980,16 @@ function renderTree() {
 
     svg.call(zoom.transform, initialTransform);
     currentZoomTransform = initialTransform;
+
+    // Add double-click to reset zoom functionality
+    svg.on('dblclick.zoom', null) // Remove default double-click zoom
+      .on('dblclick', () => {
+          // Reset to initial view centered on root
+          svg.transition()
+              .duration(750)
+              .call(zoom.transform, initialTransform);
+          currentZoomTransform = initialTransform;
+      });
 
 
     // Initialize zoom controls
@@ -1221,6 +1407,106 @@ function initZoomControls(zoomBehavior, svg) {
 
     if (!zoomInBtn || !zoomOutBtn || !zoomResetBtn) return;
 
+    // Add extended family toggle button if it doesn't exist
+    if (!document.getElementById('extended-family-toggle')) {
+        const zoomControls = document.getElementById('zoom-controls');
+        if (zoomControls) {
+            const extendedFamilyBtn = document.createElement('button');
+            extendedFamilyBtn.id = 'extended-family-toggle';
+            extendedFamilyBtn.className = 'zoom-btn';
+            // Set initial button text based on current view - show destination view as active
+            if (showExtendedFamily) {
+                // Currently showing extended family, button shows option to switch to direct descendants
+                extendedFamilyBtn.innerHTML = '<span style="opacity: 0.7;">Extended</span> | <span style="font-weight: bold;">Direct</span>';
+                extendedFamilyBtn.title = 'Switch to Direct Descendants View';
+            } else {
+                // Currently showing direct descendants, button shows option to switch to extended family
+                extendedFamilyBtn.innerHTML = '<span style="font-weight: bold;">Extended</span> | <span style="opacity: 0.7;">Direct</span>';
+                extendedFamilyBtn.title = 'Switch to Extended Family View';
+            }
+            extendedFamilyBtn.style.marginLeft = '10px';
+            extendedFamilyBtn.style.width = 'auto';
+            extendedFamilyBtn.style.padding = '5px 10px';
+            extendedFamilyBtn.style.fontSize = '12px';
+            extendedFamilyBtn.style.display = 'flex';
+            extendedFamilyBtn.style.justifyContent = 'center';
+            extendedFamilyBtn.style.alignItems = 'center';
+            extendedFamilyBtn.style.textAlign = 'center';
+            
+            extendedFamilyBtn.addEventListener('click', toggleExtendedFamilyView);
+            
+            // Insert before the reset button
+            const resetBtn = document.getElementById('zoom-reset-btn');
+            if (resetBtn && resetBtn.parentNode) {
+                resetBtn.parentNode.insertBefore(extendedFamilyBtn, resetBtn.nextSibling);
+            } else {
+                zoomControls.appendChild(extendedFamilyBtn);
+            }
+            
+            // Add dropdown container for selecting person for direct descendants view
+            const dropdownContainer = document.createElement('div');
+            dropdownContainer.id = 'direct-descendants-dropdown-container';
+            dropdownContainer.style.display = 'none'; // Initially hidden
+            dropdownContainer.style.marginLeft = '10px';
+            dropdownContainer.style.verticalAlign = 'middle';
+            
+            const dropdownLabel = document.createElement('label');
+            dropdownLabel.textContent = 'Show descendants of: ';
+            dropdownLabel.style.fontSize = '12px';
+            dropdownLabel.style.marginRight = '5px';
+            dropdownLabel.style.verticalAlign = 'middle';
+            
+            const dropdown = document.createElement('select');
+            dropdown.id = 'direct-descendants-select';
+            dropdown.style.fontSize = '12px';
+            dropdown.style.padding = '3px';
+            dropdown.style.verticalAlign = 'middle';
+            
+            // Populate dropdown with all people
+            Object.values(peopleMap).forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.id;
+                option.textContent = person.name;
+                dropdown.appendChild(option);
+            });
+            
+            // Set default to root person if available
+            if (rootPersonId && peopleMap[rootPersonId]) {
+                dropdown.value = rootPersonId;
+                directDescendantsOf = rootPersonId;
+            }
+            
+            dropdown.addEventListener('change', function() {
+                directDescendantsOf = this.value;
+                renderTree();
+            });
+            
+            dropdownContainer.appendChild(dropdownLabel);
+            dropdownContainer.appendChild(dropdown);
+            
+            // Insert after the extended family button
+            extendedFamilyBtn.parentNode.insertBefore(dropdownContainer, extendedFamilyBtn.nextSibling);
+        }
+    }
+
+    // Add trackpad hint if it doesn't exist
+    if (!document.getElementById('trackpad-hint')) {
+        const zoomControls = document.getElementById('zoom-controls');
+        if (zoomControls) {
+            const hintDiv = document.createElement('div');
+            hintDiv.id = 'trackpad-hint';
+            hintDiv.innerHTML = '🖱️ Use trackpad/mouse wheel to zoom, drag to pan';
+            hintDiv.style.marginLeft = '15px';
+            hintDiv.style.fontSize = '12px';
+            hintDiv.style.color = 'var(--text-secondary)';
+            hintDiv.style.opacity = '0.8';
+            hintDiv.style.alignSelf = 'center';
+            
+            // Insert at the end of zoom controls
+            zoomControls.appendChild(hintDiv);
+        }
+    }
+
     function updateZoomDisplay(scale) {
         const zoomLevel = document.getElementById('zoom-level');
         if (zoomLevel) {
@@ -1261,6 +1547,40 @@ function initZoomControls(zoomBehavior, svg) {
     updateZoomDisplay(0.45); // Start at 45%
 }
 
+// Create elbow connector path for parent-child relationships
+function createElbowConnector(source, target, isHorizontal = false) {
+    const path = d3.path();
+    
+    // Adjust coordinates to account for node radius and avatar offset
+    const sourceX = source.x;
+    const sourceY = source.y + nodeRadius + 30; // Start from bottom of source node plus avatar offset
+    const targetX = target.x;
+    const targetY = target.y - nodeRadius; // End at top of target node
+    
+    if (isHorizontal) {
+        // For spouse connections (horizontal), create a curved connector
+        const midX = (sourceX + targetX) / 2;
+        const controlY = Math.min(sourceY, targetY) - 30; // Curve above both nodes
+        
+        path.moveTo(sourceX, sourceY);
+        path.bezierCurveTo(
+            midX, sourceY,      // Control point 1
+            midX, targetY,      // Control point 2
+            targetX, targetY     // End point
+        );
+    } else {
+        // For parent-child (vertical), create an elbow connector
+        const midY = (sourceY + targetY) / 2;
+        
+        path.moveTo(sourceX, sourceY);
+        path.lineTo(sourceX, midY);           // Vertical line down to midpoint
+        path.lineTo(targetX, midY);           // Horizontal line to target X
+        path.lineTo(targetX, targetY);        // Vertical line to target
+    }
+    
+    return path.toString();
+}
+
 // Update zoom display
 function updateZoomDisplay(scale) {
     const zoomLevel = document.getElementById('zoom-level');
@@ -1276,8 +1596,36 @@ function toggleNodeCollapse(nodeId) {
     } else {
         collapsedNodes.add(nodeId);
     }
-    
+
     // Re-render the tree to reflect the collapse/expand state
+    renderTree();
+}
+
+// Toggle extended family view
+function toggleExtendedFamilyView() {
+    showExtendedFamily = !showExtendedFamily;
+    
+    // Update button text/icon to show current view and destination
+    const toggleBtn = document.getElementById('extended-family-toggle');
+    if (toggleBtn) {
+        if (showExtendedFamily) {
+            // Currently showing extended family, button shows option to switch to direct descendants
+            toggleBtn.innerHTML = '<span style="opacity: 0.7;">Extended</span> | <span style="font-weight: bold;">Direct</span>';
+            toggleBtn.title = 'Switch to Direct Descendants View';
+        } else {
+            // Currently showing direct descendants, button shows option to switch to extended family
+            toggleBtn.innerHTML = '<span style="font-weight: bold;">Extended</span> | <span style="opacity: 0.7;">Direct</span>';
+            toggleBtn.title = 'Switch to Extended Family View';
+        }
+    }
+    
+    // Show/hide the dropdown based on the toggle state
+    const dropdownContainer = document.getElementById('direct-descendants-dropdown-container');
+    if (dropdownContainer) {
+        dropdownContainer.style.display = showExtendedFamily ? 'none' : 'inline-block';
+    }
+    
+    // Re-render the tree with new view settings
     renderTree();
 }
 
@@ -1288,9 +1636,32 @@ function showPersonDetails(person) {
     const infoDiv = document.getElementById('person-info');
 
     detailsDiv.classList.remove('hidden');
-    nameDiv.textContent = person.name;
+    
+    // Enhanced header with gender indicator
+    let genderIcon = '';
+    if (person.gender === 'M') {
+        genderIcon = '♂️'; // Male symbol
+    } else if (person.gender === 'F') {
+        genderIcon = '♀️'; // Female symbol
+    } else {
+        genderIcon = '⚧'; // Gender diverse symbol
+    }
+    
+    nameDiv.innerHTML = `${person.name} <span style="font-size: 0.8em; opacity: 0.7;">${genderIcon}</span>`;
 
     let html = '';
+
+    // Age calculation
+    if (person.birthYear) {
+        const age = person.deathYear ? person.deathYear - person.birthYear : new Date().getFullYear() - person.birthYear;
+        html += `<div class="info-item"><strong>Age</strong><span>${age} years</span></div>`;
+        
+        html += `<div class="info-item"><strong>Birth Year</strong><span>${person.birthYear}</span></div>`;
+    }
+
+    if (person.deathYear) {
+        html += `<div class="info-item"><strong>Death Year</strong><span>${person.deathYear}</span></div>`;
+    }
 
     if (person.aliases && person.aliases.length > 0) {
         html += `<div class="info-item"><strong>Aliases</strong><span>${person.aliases.join(', ')}</span></div>`;
@@ -1300,19 +1671,23 @@ function showPersonDetails(person) {
         html += `<div class="info-item"><strong>Gender</strong><span>${person.gender}</span></div>`;
     }
 
-    if (person.birthYear) {
-        html += `<div class="info-item"><strong>Birth Year</strong><span>${person.birthYear}</span></div>`;
-    }
-
-    if (person.deathYear) {
-        html += `<div class="info-item"><strong>Death Year</strong><span>${person.deathYear}</span></div>`;
-    }
-
     if (person.notes) {
         html += `<div class="info-item"><strong>Notes</strong><span>${person.notes}</span></div>`;
     }
 
+    // Add relationships information
+    const personRelationships = relationships.filter(rel => 
+        rel.people?.includes(person.id) || rel.parentId === person.id || rel.childId === person.id
+    );
+    
+    if (personRelationships.length > 0) {
+        html += `<div class="info-item"><strong>Relationships</strong><span>${personRelationships.length} connections</span></div>`;
+    }
+
     infoDiv.innerHTML = html || '<div class="info-item">No additional information available.</div>';
+    
+    // Scroll to the details panel
+    detailsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // Also log that script loaded

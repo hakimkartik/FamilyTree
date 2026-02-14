@@ -1,15 +1,15 @@
 :root {
     /* Nature Theme - Light */
-    --bg-primary: linear-gradient(135deg, #e6f0ff 0%, #f0f7ff 100%);
-    /* Soft Sky Blue */
+    --bg-primary: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+    /* Light Pink Gradient */
     --bg-secondary: rgba(255, 255, 255, 0.9);
-    --bg-tertiary: rgba(240, 248, 255, 0.6);
+    --bg-tertiary: rgba(255, 245, 248, 0.6);
     --text-primary: #2c3e50;
-    --text-secondary: #5d4037;
-    /* Dark Wood */
+    --text-secondary: #880e4f;
+    /* Deep Pink */
     --text-inverse: #ffffff;
-    --border-color: rgba(139, 69, 19, 0.15);
-    /* SaddleBrown tint */
+    --border-color: rgba(233, 30, 99, 0.15);
+    /* Pink tint */
 
     /* Shadows & Glows */
     --shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
