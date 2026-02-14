@@ -3,6 +3,7 @@ let treeData = null;
 let peopleMap = {};
 let relationships = [];
 let rootPersonId = null;
+let collapsedNodes = new Set(); // Track which nodes are collapsed
 
 // SVG dimensions
 const width = 1600;
@@ -32,6 +33,9 @@ async function init() {
         console.log('JSON file loaded, parsing...');
         treeData = await response.json();
         console.log('Tree data loaded:', treeData);
+
+        // Reset collapsed nodes when loading new data
+        resetCollapsedNodes();
 
         // Build people map for quick lookup
         treeData.people.forEach(person => {
@@ -316,7 +320,8 @@ function buildTreeStructure() {
                     birthYear: spouse.birthYear,
                     deathYear: spouse.deathYear,
                     notes: spouse.notes,
-                    level: 0
+                    level: 0,
+                    directDescendantsCount: countDirectDescendants(spouseId) // Add direct descendants count
                 });
             }
         });
@@ -343,11 +348,17 @@ function calculatePositions(root) {
     // First pass: collect nodes by level
     function collectNodes(node, level = 0) {
         if (!node || visited.has(node.id)) return;
+        
         visited.add(node.id);
 
         if (!nodesByLevel[level]) nodesByLevel[level] = [];
         if (!nodesByLevel[level].find(n => n.id === node.id)) {
             nodesByLevel[level].push(node);
+        }
+
+        // If this node is collapsed, don't process its children or descendants
+        if (collapsedNodes.has(node.id)) {
+            return;
         }
 
         // Process spouses at same level
@@ -414,8 +425,8 @@ function calculatePositions(root) {
 
 
                         // Process children of siblings (nephews/nieces/cousins) using recursion
-                        // sibling is now a full node structure from buildNodeDown
-                        if (sibling.children && sibling.children.length > 0) {
+                        // Only process if the sibling is not collapsed
+                        if (sibling.children && sibling.children.length > 0 && !collapsedNodes.has(sibling.id)) {
                             sibling.children.forEach(child => collectNodes(child, level + 1));
                         }
                     }
@@ -423,7 +434,7 @@ function calculatePositions(root) {
             });
         }
 
-        // Process children (downward)
+        // Process children (downward) - only if the current node is not collapsed
         if (node.children && node.children.length > 0) {
             node.children.forEach(child => collectNodes(child, level + 1));
         }
@@ -541,7 +552,9 @@ function renderTree() {
             const parent = positions[rel.parentId];
             const child = positions[rel.childId];
 
-            if (parent && child) {
+            // Only draw the link if both parent and child are present in positions
+            // and the parent is not collapsed (since if parent is collapsed, child won't be in positions)
+            if (parent && child && !collapsedNodes.has(rel.parentId)) {
                 // Organic curve generator
                 const linkGen = d3.linkVertical()
                     .x(d => d.x)
@@ -575,6 +588,7 @@ function renderTree() {
             const person1 = positions[p1];
             const person2 = positions[p2];
 
+            // Only draw spouse link if both people are present in positions
             if (person1 && person2) {
                 // Draw curved line for spouses
                 const midX = (person1.x + person2.x) / 2;
@@ -636,10 +650,17 @@ function renderTree() {
 
         const nodeGroup = g.append('g')
             .data([person]) // Bind data for easier event handling
-            .attr('class', `node ${genderClass} ${isRoot ? 'root' : ''}`)
+            .attr('class', `node ${genderClass} ${isRoot ? 'root' : ''} ${collapsedNodes.has(person.id) ? 'collapsed' : ''}`)
             .attr('id', `node-${person.id}`) // Add ID for easy selection
             .attr('transform', `translate(${x}, ${y}) scale(0)`)
-            .on('click', () => showPersonDetails(person))
+            .on('click', function(event, d) {
+                // Check if shift key is pressed to show person details instead of toggling collapse
+                if (event.shiftKey) {
+                    showPersonDetails(person);
+                } else {
+                    toggleNodeCollapse(person.id);
+                }
+            })
             .on('mouseover', function (event, d) {
                 // Dim Tree
                 svg.classed('tree-dimmed', true);
@@ -693,6 +714,11 @@ function renderTree() {
                 if (person.birthYear) content += `<div class="tooltip-detail"><span>Age</span> <span>${age}</span></div>`;
                 if (person.aliases && person.aliases.length) content += `<div class="tooltip-detail"><span>Aliases</span> <span>${aliases}</span></div>`;
                 if (notes) content += `<div class="tooltip-detail note"><span>Notes</span> <span>${notes}</span></div>`;
+                
+                // Add indicator for collapsed state
+                if (collapsedNodes.has(person.id)) {
+                    content += `<div class="tooltip-detail"><span>Status</span> <span>Collapsed</span></div>`;
+                }
 
                 // Calculate position relative to the node, not the mouse
                 const bounds = this.getBoundingClientRect();
@@ -734,7 +760,8 @@ function renderTree() {
                 return 'url(#otherGradient)';
             })
             .attr('stroke', '#fff')
-            .attr('stroke-width', 3);
+            .attr('stroke-width', 3)
+            .attr('stroke-dasharray', collapsedNodes.has(person.id) ? '5,5' : 'none'); // Dashed border for collapsed nodes
 
         // Draw label
         const labelY = isRoot ? nodeRadius + 35 : nodeRadius + 25;
@@ -760,7 +787,7 @@ function renderTree() {
 
     // Add zoom and pan functionality
     const zoom = d3.zoom()
-        .scaleExtent([0.1, 4]) // Allow wider zoom range
+        .scaleExtent([0.1, 4]) // Allow wider zoom range (keeping original to maintain compatibility)
         .on('zoom', (event) => {
             g.attr('transform', event.transform);
             currentZoomTransform = event.transform;
@@ -772,7 +799,7 @@ function renderTree() {
     // Center the tree initially - focus on Root
     const initialTransform = d3.zoomIdentity
         .translate(width / 2, height / 2) // Move to center
-        .scale(0.8) // Start slightly zoomed out to see structure
+        .scale(0.45) // Start at 45% zoom level
         .translate(-positions[rootPersonId].x, -positions[rootPersonId].y); // Center on root person
 
     svg.call(zoom.transform, initialTransform);
@@ -781,10 +808,410 @@ function renderTree() {
 
     // Initialize zoom controls
     initZoomControls(zoom, svg);
+    
+    // Initialize search functionality
+    initSearchFunctionality();
 }
 
 // Global variable to track current zoom transform
 let currentZoomTransform = d3.zoomIdentity;
+
+// Initialize search functionality
+function initSearchFunctionality() {
+    // Create search container if it doesn't exist
+    let searchContainer = document.getElementById('search-container');
+    if (!searchContainer) {
+        searchContainer = document.createElement('div');
+        searchContainer.id = 'search-container';
+        searchContainer.style.position = 'absolute';
+        searchContainer.style.top = '15px';
+        searchContainer.style.left = '15px'; // Positioned on the left side
+        searchContainer.style.right = 'auto'; // Override any right positioning
+        searchContainer.style.zIndex = '100';
+        searchContainer.style.backgroundColor = 'var(--bg-secondary)';
+        searchContainer.style.padding = '8px 12px';
+        searchContainer.style.borderRadius = '8px';
+        searchContainer.style.boxShadow = '0 2px 8px var(--shadow-light)';
+        searchContainer.style.display = 'flex';
+        searchContainer.style.alignItems = 'center';
+        searchContainer.style.gap = '5px';
+        
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.id = 'search-input';
+        searchInput.placeholder = 'Search person...';
+        searchInput.style.padding = '5px 8px';
+        searchInput.style.border = '1px solid var(--border-color)';
+        searchInput.style.borderRadius = '4px';
+        searchInput.style.fontSize = '14px';
+        searchInput.style.width = '150px';
+        
+        const searchButton = document.createElement('button');
+        searchButton.id = 'search-button';
+        searchButton.textContent = '🔍';
+        searchButton.style.border = 'none';
+        searchButton.style.background = 'transparent';
+        searchButton.style.cursor = 'pointer';
+        searchButton.style.fontSize = '16px';
+        
+        searchContainer.appendChild(searchInput);
+        searchContainer.appendChild(searchButton);
+        
+        document.getElementById('tree-container').appendChild(searchContainer);
+        
+        // Add event listeners
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        searchButton.addEventListener('click', performSearch);
+    }
+}
+
+// Perform search and highlight matching nodes
+function performSearch() {
+    const searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+    
+    if (!searchTerm) {
+        // Clear highlights if search is empty
+        clearHighlights();
+        // Also hide suggestions
+        hideSuggestions();
+        return;
+    }
+    
+    // Clear previous highlights
+    clearHighlights();
+    
+    // Find matching nodes
+    const matchingNodes = [];
+    Object.keys(peopleMap).forEach(personId => {
+        const person = peopleMap[personId];
+        if (person.name.toLowerCase().includes(searchTerm) || 
+            (person.aliases && person.aliases.some(alias => alias.toLowerCase().includes(searchTerm)))) {
+            matchingNodes.push(personId);
+        }
+    });
+    
+    // Highlight matching nodes
+    matchingNodes.forEach(personId => {
+        const nodeElement = document.getElementById(`node-${personId}`);
+        if (nodeElement) {
+            // Add highlight class
+            nodeElement.classList.add('search-highlight');
+            
+            // Add animation effect
+            const circle = nodeElement.querySelector('circle');
+            if (circle) {
+                // Create animation effect
+                d3.select(circle)
+                    .transition()
+                    .duration(200)
+                    .attr('r', nodeRadius + 15) // Make slightly bigger
+                    .transition()
+                    .duration(200)
+                    .attr('r', nodeRadius + 5); // Then slightly bigger than normal
+                
+                // Add pulsing effect
+                d3.select(circle)
+                    .attr('stroke-width', 5)
+                    .attr('stroke', '#FFD700'); // Gold color for highlight
+            }
+        }
+    });
+    
+    // If only one match, center the view on it
+    if (matchingNodes.length === 1) {
+        const personId = matchingNodes[0];
+        // Get the position of the matched node from positions map
+        const positionInfo = positions[personId];
+        if (positionInfo) {
+            // Get the SVG element and its current transform
+            const svgElement = d3.select('#tree-svg');
+            const svg = svgElement.node();
+            const container = svg.getBoundingClientRect();
+            
+            // Calculate the transform to center on the node
+            const centerX = container.width / 2;
+            const centerY = container.height / 2;
+            
+            const newTransform = d3.zoomIdentity
+                .translate(centerX, centerY)
+                .scale(currentZoomTransform.k)
+                .translate(-positionInfo.x, -positionInfo.y);
+            
+            // Apply the transform with smooth transition
+            svgElement
+                .select('g') // Select the main group containing all nodes
+                .transition()
+                .duration(750)
+                .call(d3.select(svg).transition().duration(750), newTransform);
+                
+            // Update the global transform variable
+            currentZoomTransform = newTransform;
+        }
+    }
+}
+
+// Initialize search functionality with autocomplete
+function initSearchFunctionality() {
+    // Create search container if it doesn't exist
+    let searchContainer = document.getElementById('search-container');
+    if (!searchContainer) {
+        searchContainer = document.createElement('div');
+        searchContainer.id = 'search-container';
+        searchContainer.style.position = 'absolute';
+        searchContainer.style.top = '15px';
+        searchContainer.style.left = '15px'; // Positioned on the left side
+        searchContainer.style.right = 'auto'; // Override any right positioning
+        searchContainer.style.zIndex = '100';
+        searchContainer.style.backgroundColor = 'var(--bg-secondary)';
+        searchContainer.style.padding = '8px 12px';
+        searchContainer.style.borderRadius = '8px';
+        searchContainer.style.boxShadow = '0 2px 8px var(--shadow-light)';
+        searchContainer.style.display = 'flex';
+        searchContainer.style.flexDirection = 'column';
+        searchContainer.style.alignItems = 'stretch';
+        searchContainer.style.gap = '5px';
+        
+        const searchInputWrapper = document.createElement('div');
+        searchInputWrapper.style.display = 'flex';
+        searchInputWrapper.style.alignItems = 'center';
+        searchInputWrapper.style.gap = '5px';
+        
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.id = 'search-input';
+        searchInput.placeholder = 'Search person...';
+        searchInput.style.padding = '5px 8px';
+        searchInput.style.border = '1px solid var(--border-color)';
+        searchInput.style.borderRadius = '4px';
+        searchInput.style.fontSize = '14px';
+        searchInput.style.width = '150px';
+        searchInput.style.outline = 'none';
+        
+        const searchButton = document.createElement('button');
+        searchButton.id = 'search-button';
+        searchButton.textContent = '🔍';
+        searchButton.style.border = 'none';
+        searchButton.style.background = 'transparent';
+        searchButton.style.cursor = 'pointer';
+        searchButton.style.fontSize = '16px';
+        
+        searchInputWrapper.appendChild(searchInput);
+        searchInputWrapper.appendChild(searchButton);
+        
+        // Create suggestions container
+        const suggestionsContainer = document.createElement('div');
+        suggestionsContainer.id = 'suggestions-container';
+        suggestionsContainer.style.position = 'absolute';
+        suggestionsContainer.style.top = '45px';
+        suggestionsContainer.style.left = '0';
+        suggestionsContainer.style.width = '100%';
+        suggestionsContainer.style.maxHeight = '200px';
+        suggestionsContainer.style.overflowY = 'auto';
+        suggestionsContainer.style.backgroundColor = 'var(--bg-secondary)';
+        suggestionsContainer.style.border = '1px solid var(--border-color)';
+        suggestionsContainer.style.borderRadius = '4px';
+        suggestionsContainer.style.boxShadow = '0 4px 12px var(--shadow-light)';
+        suggestionsContainer.style.display = 'none';
+        suggestionsContainer.style.zIndex = '101';
+        
+        searchContainer.appendChild(searchInputWrapper);
+        searchContainer.appendChild(suggestionsContainer);
+        
+        document.getElementById('tree-container').appendChild(searchContainer);
+        
+        // Add event listeners
+        searchInput.addEventListener('input', handleSearchInput);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        searchInput.addEventListener('focus', function() {
+            if (this.value.trim() !== '') {
+                showSuggestions(this.value);
+            }
+        });
+        
+        searchInput.addEventListener('blur', function() {
+            // Delay hiding suggestions to allow clicking on them
+            setTimeout(hideSuggestions, 200);
+        });
+        
+        searchButton.addEventListener('click', performSearch);
+    }
+}
+
+// Handle search input for autocomplete
+function handleSearchInput(e) {
+    const searchTerm = e.target.value.trim();
+    
+    if (searchTerm === '') {
+        hideSuggestions();
+        clearHighlights();
+        return;
+    }
+    
+    showSuggestions(searchTerm);
+}
+
+// Show autocomplete suggestions
+function showSuggestions(searchTerm) {
+    const suggestionsContainer = document.getElementById('suggestions-container');
+    if (!suggestionsContainer) return;
+    
+    // Find matching names
+    const matches = [];
+    Object.keys(peopleMap).forEach(personId => {
+        const person = peopleMap[personId];
+        const fullName = person.name.toLowerCase();
+        const aliases = person.aliases ? person.aliases.map(a => a.toLowerCase()) : [];
+        
+        // Check if name or any alias matches
+        if (fullName.includes(searchTerm.toLowerCase()) || 
+            aliases.some(alias => alias.includes(searchTerm.toLowerCase()))) {
+            matches.push({
+                id: personId,
+                name: person.name,
+                aliases: person.aliases || []
+            });
+        }
+    });
+    
+    // Limit to top 10 matches
+    const topMatches = matches.slice(0, 10);
+    
+    if (topMatches.length === 0) {
+        suggestionsContainer.style.display = 'none';
+        return;
+    }
+    
+    // Create suggestion items
+    suggestionsContainer.innerHTML = '';
+    topMatches.forEach(match => {
+        const suggestionItem = document.createElement('div');
+        suggestionItem.className = 'suggestion-item';
+        suggestionItem.style.padding = '8px 12px';
+        suggestionItem.style.cursor = 'pointer';
+        suggestionItem.style.borderBottom = '1px solid var(--border-color)';
+        suggestionItem.style.fontSize = '14px';
+        suggestionItem.style.color = 'var(--text-primary)';
+        
+        // Highlight matching text
+        let displayName = match.name;
+        if (match.aliases.length > 0) {
+            displayName += ` (${match.aliases.join(', ')})`;
+        }
+        
+        // Highlight the matching part
+        const searchTermLower = searchTerm.toLowerCase();
+        const nameLower = displayName.toLowerCase();
+        const matchIndex = nameLower.indexOf(searchTermLower);
+        
+        if (matchIndex !== -1) {
+            const before = displayName.substring(0, matchIndex);
+            const matched = displayName.substring(matchIndex, matchIndex + searchTerm.length);
+            const after = displayName.substring(matchIndex + searchTerm.length);
+            
+            suggestionItem.innerHTML = `
+                <span>${before}<strong>${matched}</strong>${after}</span>
+            `;
+        } else {
+            suggestionItem.textContent = displayName;
+        }
+        
+        suggestionItem.addEventListener('mousedown', function() {
+            // Set the input value to the selected suggestion
+            document.getElementById('search-input').value = match.name;
+            suggestionsContainer.style.display = 'none';
+            
+            // Highlight the selected person
+            clearHighlights();
+            const nodeElement = document.getElementById(`node-${match.id}`);
+            if (nodeElement) {
+                nodeElement.classList.add('search-highlight');
+                
+                const circle = nodeElement.querySelector('circle');
+                if (circle) {
+                    d3.select(circle)
+                        .transition()
+                        .duration(200)
+                        .attr('r', nodeRadius + 15)
+                        .transition()
+                        .duration(200)
+                        .attr('r', nodeRadius + 5);
+                    
+                    d3.select(circle)
+                        .attr('stroke-width', 5)
+                        .attr('stroke', '#FFD700');
+                }
+            }
+            
+            // Center the view on the selected person
+            const positionInfo = positions[match.id];
+            if (positionInfo) {
+                const svgElement = d3.select('#tree-svg');
+                const svg = svgElement.node();
+                
+                const centerX = svg.clientWidth / 2;
+                const centerY = svg.clientHeight / 2;
+                
+                const newTransform = d3.zoomIdentity
+                    .translate(centerX, centerY)
+                    .scale(currentZoomTransform.k)
+                    .translate(-positionInfo.x, -positionInfo.y);
+                
+                svgElement
+                    .select('g')
+                    .transition()
+                    .duration(750)
+                    .call(d3.select(svg).transition().duration(750), newTransform);
+                    
+                currentZoomTransform = newTransform;
+            }
+        });
+        
+        suggestionsContainer.appendChild(suggestionItem);
+    });
+    
+    suggestionsContainer.style.display = 'block';
+}
+
+// Hide suggestions
+function hideSuggestions() {
+    const suggestionsContainer = document.getElementById('suggestions-container');
+    if (suggestionsContainer) {
+        suggestionsContainer.style.display = 'none';
+    }
+}
+
+// Clear all highlights
+function clearHighlights() {
+    // Remove highlight classes and reset styles
+    document.querySelectorAll('.search-highlight').forEach(el => {
+        el.classList.remove('search-highlight');
+        
+        // Reset circle properties
+        const circle = el.querySelector('circle');
+        if (circle) {
+            // Use D3 to properly reset the animated properties
+            d3.select(circle)
+                .interrupt() // Stop any ongoing transitions
+                .attr('r', function(d) {
+                    // Determine if this is a root node to set the correct radius
+                    const nodeId = this.parentNode.id.replace('node-', '');
+                    return peopleMap[nodeId] && nodeId === rootPersonId ? nodeRadius + 10 : nodeRadius;
+                })
+                .attr('stroke-width', 3)
+                .attr('stroke', '#fff');
+        }
+    });
+}
 
 // Initialize zoom controls
 function initZoomControls(zoomBehavior, svg) {
@@ -817,12 +1244,12 @@ function initZoomControls(zoomBehavior, svg) {
     }
 
     zoomInBtn.addEventListener('click', () => {
-        const newScale = Math.min(currentZoomTransform.k * 1.2, 3);
+        const newScale = Math.min(currentZoomTransform.k + 0.1, 3); // Increment by 10%
         zoomTo(newScale);
     });
 
     zoomOutBtn.addEventListener('click', () => {
-        const newScale = Math.max(currentZoomTransform.k / 1.2, 0.3);
+        const newScale = Math.max(currentZoomTransform.k - 0.1, 0.1); // Decrement by 10%, minimum 10%
         zoomTo(newScale);
     });
 
@@ -831,7 +1258,7 @@ function initZoomControls(zoomBehavior, svg) {
     });
 
     // Initialize display
-    updateZoomDisplay(1);
+    updateZoomDisplay(0.45); // Start at 45%
 }
 
 // Update zoom display
@@ -840,6 +1267,18 @@ function updateZoomDisplay(scale) {
     if (zoomLevel) {
         zoomLevel.textContent = Math.round(scale * 100) + '%';
     }
+}
+
+// Toggle node collapse/expand
+function toggleNodeCollapse(nodeId) {
+    if (collapsedNodes.has(nodeId)) {
+        collapsedNodes.delete(nodeId);
+    } else {
+        collapsedNodes.add(nodeId);
+    }
+    
+    // Re-render the tree to reflect the collapse/expand state
+    renderTree();
 }
 
 // Show person details
@@ -1003,4 +1442,9 @@ if (document.readyState === 'loading') {
     // Attach PNG listener here too
     const pngBtn = document.getElementById('generate-png-btn');
     if (pngBtn) pngBtn.addEventListener('click', generatePNG);
+}
+
+// Function to reset collapsed nodes when loading new data
+function resetCollapsedNodes() {
+    collapsedNodes.clear();
 }

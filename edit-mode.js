@@ -309,7 +309,7 @@ function handleUpdatePerson(e) {
     // Update array in treeData (peopleMap is already a reference to objects in this array, but good to be safe)
     // Since we modified the object directly via 'person', it is updated in the array too.
 
-    // Re-render to show changes
+    // Re-render to show changes (preserving collapsed state)
     renderTree();
 
     showMessage('edit-person-form', `Updated ${person.name} successfully!`, 'success');
@@ -370,7 +370,7 @@ function handleAddPerson(e) {
     // Update selects
     updatePersonSelects();
 
-    // Re-render tree
+    // Re-render tree (preserving collapsed state)
     renderTree();
 
     showMessage('add-person-form', `Successfully added ${name}!`, 'success');
@@ -490,7 +490,7 @@ function handleAddParentChild(e) {
     document.getElementById('parent-select').value = '';
     document.getElementById('child-select').value = '';
 
-    // Re-render tree
+    // Re-render tree (preserving collapsed state)
     renderTree();
 
     const parentName = peopleMap[parentId].name;
@@ -581,7 +581,7 @@ function handleAddSpouse(e) {
     document.getElementById('spouse1-select').value = '';
     document.getElementById('spouse2-select').value = '';
 
-    // Re-render tree
+    // Re-render tree (preserving collapsed state)
     renderTree();
 
     const spouse1Name = peopleMap[spouse1Id].name;
@@ -653,6 +653,8 @@ async function saveToServer() {
 
         if (response.ok) {
             showMessageInElement(msgContainer, '✅ Saved to family1.json successfully!', 'success');
+            // Optionally reload the tree to ensure consistency, preserving collapsed state
+            // renderTree(); // Already handled by not resetting collapsedNodes
         } else {
             const err = await response.json();
             throw new Error(err.message || 'Unknown server error');
@@ -701,7 +703,7 @@ function reloadOriginalData() {
         // Update forms
         updateEditForms();
 
-        // Re-render tree
+        // Re-render tree (this will preserve collapsed state since we don't reset collapsedNodes)
         renderTree();
 
         const saveSection = document.querySelector('.edit-section:last-child');

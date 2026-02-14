@@ -7,6 +7,14 @@
     <title>Hakim-Sapru Family Tree</title>
     <link rel="stylesheet" href="styles.css?v=2">
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Check if the user has access by verifying if they've come from the landing page
+        // This is a simple check - in a real application, you'd use server-side authentication
+        if (!sessionStorage.getItem('familyTreeAccess')) {
+            // Redirect to landing page if no access token is found
+            window.location.href = 'landing.html';
+        }
+    </script>
 </head>
 
 <body>
@@ -19,9 +27,12 @@
                     <button id="generate-png-btn" class="mode-btn" title="Download as PNG">📸 Generate PNG</button>
                     <button id="edit-mode" class="mode-btn">Edit Tree</button>
                 </div>
-                <button id="theme-toggle" class="theme-toggle" title="Toggle Dark/Light Mode">
-                    <span id="theme-icon">🌙</span>
-                </button>
+                <div class="auth-controls">
+                    <button id="logout-btn" class="logout-btn" title="Logout">Logout</button>
+                    <button id="theme-toggle" class="theme-toggle" title="Toggle Dark/Light Mode">
+                        <span id="theme-icon">🌙</span>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -229,6 +240,15 @@
         </div>
     </div>
 
+    <script>
+        // Logout functionality
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            // Clear the access token
+            sessionStorage.removeItem('familyTreeAccess');
+            // Redirect to the landing page
+            window.location.href = 'landing.html';
+        });
+    </script>
     <script src="tree-visualization.js"></script>
     <script src="autocomplete.js"></script>
     <script src="edit-mode.js"></script>

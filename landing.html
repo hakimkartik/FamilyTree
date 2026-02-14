@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Tree Access</title>
+    <link rel="stylesheet" href="styles.css?v=2">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a2332 0%, #0f172a 100%);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #f1f5f9;
+        }
+        
+        .access-container {
+            background-color: #1e293b;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+        
+        h1 {
+            color: #38bdf8;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        p {
+            color: #94a3b8;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #f1f5f9;
+            font-weight: bold;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #334155;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #334155;
+            color: #f1f5f9;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #38bdf8;
+            outline: none;
+            background-color: #1e293b;
+        }
+        
+        button {
+            background-color: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #0ea5e9;
+        }
+        
+        .error-message {
+            color: #ff8a80;
+            margin-top: 10px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+        
+        .success-message {
+            color: #b9f6ca;
+            margin-top: 10px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+        
+        .hidden-message {
+            margin-top: 10px;
+            font-size: 14px;
+            min-height: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="access-container">
+        <h1>Family Tree Access</h1>
+        <p>Please enter your name or ID to access the family tree</p>
+        
+        <form id="accessForm">
+            <div class="input-group">
+                <label for="entryKey">Name or ID:</label>
+                <input type="text" id="entryKey" name="entryKey" placeholder="Enter your name or ID" required>
+            </div>
+            <button type="submit">Access Family Tree</button>
+        </form>
+
+        <div id="message" class="hidden-message"></div>
+    </div>
+
+    <script>
+        // Define the list of valid names and IDs from the family tree
+        const validEntries = [
+            // Names
+            'Kartik Hakim', 'Ramesh Hakim', 'Aneeta Sapru', 'Giridhari Lal Hakim', 
+            'Rani Hakim', 'Bhushan Lal Sapru', 'Veena Sapru', 'Vinod Hakim', 
+            'Sanjay Sapru', 'Anita Hakim', 'Bal Kak Hakim', 'Lach Kunj Hakim', 
+            'Shambhu Nath Sapru', 'Somavati Sapru', 'Asha Fotedar', 'Vansh Dhar', 
+            'Geeta Bhagat', 'Vanshika Dhar', 'Bhoomi Sapru', 'Bhivni Sapru', 
+            'Sanjay Koul', 'Sudhir Sapru', 'Rachna Sapru', 'Saksham Sapru', 
+            'Meera Koul', 'Krish Koul', 'Bansi Lal Sapru', 'Mohini Hakim', 
+            'Roop Narayan Pishen', 'Raka Pishen', 'Rakesh Pishen', 'Deepak Pishen', 
+            'Nancy Jalali', 'Dr. Anand Joo Hakim', 'Dr. Janki Nath Hakim', 
+            'Dr. Sudarshan Joo Hakim', 'HL Hakim', 'Ashok Hakim', 'Santosh Hakim', 
+            'Jagdish Hakim', 'Sushil Hakim', 'Jaya Hakim', 'Meena Hakim', 
+            'Sana Pishen', 'Sidhartha Pishen', 'Neha Pishen', 'Ananta Pishen', 
+            'Prakash Nath Sapru', 'Kudmal', 'Ravindra Sapru', 'Sunita Sapru', 
+            'Sushil Bamzai', 'Amit Bamzai', 'Mahesh Bamzai', 'Kunal Sapru', 
+            'Prinyanka Sapru', 'Ratni Sapru', 'Mohini Sapru', 'Chamanlal Chrungoo', 
+            'Pran Nath Pandita', 'Vijay Sapru', 'Ashok Kumar Koul', 'Ajay Chrungoo', 
+            'Saroj Saraf', 'Zaafal Chrungoo', 'Pranav Chrungoo', 'Renu Chrungoo', 
+            'Ritu Chrungoo', 'Vikas Koul', 'Anil Pandita', 'Sunny Pandita', 
+            'Sheen Pandita', 'Sunil Hakim',
+            
+            // IDs
+            'kartik', 'ramesh', 'aneeta', 'giridhari', 'rani', 'bhushan', 'veena', 
+            'vinod_hakim', 'sanjay_sapru', 'anita_hakim', 'bal_kak_hakim', 
+            'lach_kunj_hakim', 'shambhu_nath_sapru', 'somavati_sapru', 'asha_fotedar', 
+            'vansh_dhar', 'geeta_bhagat', 'vanshika_dhar', 'bhoomi_sapru', 
+            'bhivni_sapru', 'sanjay_koul', 'sudhir_sapru', 'rachna_sapru', 
+            'saksham_sapru', 'meera_koul', 'krish_koul', 'bansi_lal_sapru', 
+            'mohini_hakim', 'roop_narayan_pishen', 'raka_pishen', 'rakesh_pishen', 
+            'deepak_pishen', 'nancy_jalali', 'anand_joo_hakim', 'janki_nath_hakim', 
+            'sudarshan_joo_hakim', 'hl_hakim', 'ashok_hakim', 'santosh_hakim', 
+            'jagdish_hakim', 'sushil_hakim', 'jaya_hakim', 'meena_hakim', 
+            'sana_pishen', 'sidhartha_pishen', 'neha_pishen', 'ananta_pishen', 
+            'prakash_nath_sapru', 'kudmal', 'ravindra_sapru', 'sunita_sapru', 
+            'sushil_bamzai', 'amit_bamzai', 'mahesh_bamzai', 'kunal_sapru', 
+            'prinyanka_sapru', 'ratni_sapru', 'mohini_sapru', 'chamanlal_chrungoo', 
+            'pran_nath_pandita', 'vijay_sapru', 'ashok_kumar_koul', 'ajay_chrungoo', 
+            'saroj_saraf', 'zaafal_chrungoo', 'pranav_chrungoo', 'renu_chrungoo', 
+            'ritu_chrungoo', 'vikas_koul', 'anil_pandita', 'sunny_pandita', 
+            'sheen_pandita', 'sunil_hakim'
+        ];
+
+        document.getElementById('accessForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const entryKey = document.getElementById('entryKey').value.trim();
+            const messageElement = document.getElementById('message');
+
+            // Check if the entry key matches any valid name or ID
+            const isValidEntry = validEntries.some(entry =>
+                entry.toLowerCase() === entryKey.toLowerCase()
+            );
+
+            if (isValidEntry) {
+                messageElement.textContent = 'Access granted! Redirecting...';
+                messageElement.className = 'success-message';
+                messageElement.style.display = 'block';
+
+                // Store access token in sessionStorage
+                sessionStorage.setItem('familyTreeAccess', 'true');
+
+                // Redirect to the main family tree page after a short delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            } else {
+                messageElement.textContent = 'Access denied. Please enter a valid name or ID.';
+                messageElement.className = 'error-message';
+                messageElement.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
